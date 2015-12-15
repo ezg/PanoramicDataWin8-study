@@ -52,7 +52,7 @@
             </Grid>
 
             <Grid 
-                Margin="10,0,0,10"
+                Margin="10,0,10,10"
                 Name="v2"
                 Grid.Row="1" Grid.Column="2">
             </Grid>
@@ -64,7 +64,7 @@
             </Grid>
 
             <Grid 
-                 Margin="10,10,0,10"
+                 Margin="10,10,10,10"
                 Name="v4"
                 Grid.Row="2" Grid.Column="2">
             </Grid>
