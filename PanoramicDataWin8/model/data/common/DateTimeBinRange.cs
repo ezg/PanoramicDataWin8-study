@@ -94,7 +94,7 @@ namespace PanoramicDataWin8.model.data.common
                 }
                 i++;
             }
-            return -1;
+            return scale.Count - 1;
         }
 
         public override double AddStep(double value)

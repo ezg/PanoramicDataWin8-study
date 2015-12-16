@@ -33,10 +33,26 @@
 
             <TextBlock 
                 CacheMode="BitmapCache"
-                VerticalAlignment="Top"
+                VerticalAlignment="Bottom"
                 HorizontalAlignment="Left"
                 TextAlignment="Center"
                 Text="Vizdom" FontSize="80" Foreground="{StaticResource highlightBrush}" />
+            
+            <Grid Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Margin="80,0,10,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <TextBox
+                    Grid.Column="4" 
+                    VerticalAlignment="Bottom"
+                    AcceptsReturn="True" PlaceholderText="Filter" Height="50" FontSize="30"
+                    BorderBrush="{StaticResource darkBrush}" BorderThickness="1"
+                    SelectionHighlightColor="{StaticResource highlightBrush}"></TextBox>
+            </Grid>
+            
             <Grid
                 Grid.Column="0"
                 Grid.Row="1" Grid.RowSpan="2"
