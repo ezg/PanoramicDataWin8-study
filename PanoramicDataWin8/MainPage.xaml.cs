@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -16,6 +17,7 @@ using Windows.UI.Xaml.Navigation;
 using Windows.Storage;
 using System.Diagnostics;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 using Windows.Devices.Input;
 using PanoramicDataWin8.view.vis;
 using Windows.UI.Input;
@@ -28,6 +30,7 @@ using Windows.UI.Core;
 using Windows.System;
 using Windows.UI.Text;
 using Windows.UI.Xaml.Documents;
+using DynamicExpresso;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -193,8 +196,7 @@ namespace PanoramicDataWin8
 
                     var tt = q1.Clone();
 
-                 }
-
+                }
                 if (e.Key == VirtualKey.P)
                 {
                     Debug.WriteLine("Render Fingers / Pen : " + MainViewController.Instance.MainModel.RenderFingersAndPen);
@@ -202,7 +204,11 @@ namespace PanoramicDataWin8
                     msgTextBlock.Text = ("Fingers / Pen : " + MainViewController.Instance.MainModel.RenderFingersAndPen);
                     msgTextBlock.Opacity = 1;
                     _messageTimer.Start();
-
+                }
+                if (e.Key == VirtualKey.L)
+                {
+                    var interpreter = new Interpreter();
+                    var result = interpreter.Eval("8 / 2 + 2");
                 }
             }
         }

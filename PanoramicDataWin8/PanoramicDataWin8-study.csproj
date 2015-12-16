@@ -504,6 +504,12 @@
       <Name>Behaviors SDK %28XAML%29</Name>
     </SDKReference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DynamicExpresso\DynamicExpresso.csproj">
+      <Project>{749b8eda-f2d8-4b51-a572-a8f0210b2167}</Project>
+      <Name>DynamicExpresso</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>
   </PropertyGroup>

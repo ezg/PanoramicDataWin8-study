@@ -77,6 +77,7 @@ namespace PanoramicDataWin8.model.data.common
 
         public virtual int GetDisplayIndex(double value)
         {
+             
             return GetIndex(value);
         }
 
