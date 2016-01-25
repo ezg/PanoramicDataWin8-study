@@ -208,7 +208,9 @@ namespace PanoramicDataWin8
                 if (e.Key == VirtualKey.L)
                 {
                     var interpreter = new Interpreter();
-                    var result = interpreter.Eval("8 / 2 + 2");
+                    Lambda parsedExpression = interpreter.Parse("test == \"tefst\"",
+                                                new Parameter("test", typeof(string)));
+                    var result = parsedExpression.Invoke("tefst");
                 }
             }
         }
