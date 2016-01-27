@@ -41,6 +41,7 @@ using PanoramicDataWin8.model.data.result;
 using PanoramicDataWin8.model.data.tuppleware;
 using PanoramicDataWin8.model.view;
 using PanoramicDataWin8.model.view.tilemenu;
+using PanoramicDataWin8.view.setting;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -236,7 +237,7 @@ namespace PanoramicDataWin8
 
         void DatasetConfigurations_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            commandBar.SecondaryCommands.Clear();
+            /*commandBar.SecondaryCommands.Clear();
             foreach (var datasetConfiguration in (DataContext as MainModel).DatasetConfigurations)
             {
                 AppBarButton b = new AppBarButton();
@@ -246,7 +247,7 @@ namespace PanoramicDataWin8
                 b.DataContext = datasetConfiguration;
                 b.Click += appBarButton_Click;
                 commandBar.SecondaryCommands.Add(b);
-            }
+            }*/
 
         }
 
@@ -440,6 +441,22 @@ namespace PanoramicDataWin8
         {
             clearAndDisposeMenus();
             MainViewController.Instance.LoadConfigs();
+        }
+
+        private async void SettingsButton_OnTapped(object sender, TappedRoutedEventArgs e)
+        {
+            SettingsDialogView signInDialog = new SettingsDialogView();
+            await signInDialog.ShowAsync();
+
+
+            if (signInDialog.Load)
+            {
+               
+            }
+            else
+            {
+                
+            }
         }
     }
 }

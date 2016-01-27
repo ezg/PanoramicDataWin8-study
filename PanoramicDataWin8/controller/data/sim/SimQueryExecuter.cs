@@ -29,7 +29,7 @@ namespace PanoramicDataWin8.controller.data.sim
                 (queryModel.VisualizationType != VisualizationType.table && queryModel.GetUsageInputOperationModel(InputUsage.X).Any() &&  queryModel.GetUsageInputOperationModel(InputUsage.Y).Any()))
             {
                 var queryModelClone = queryModel.Clone();
-                SimDataProvider dataProvider = new SimDataProvider(queryModelClone, (queryModel.SchemaModel.OriginModels[0] as SimOriginModel));
+                SimDataProvider dataProvider = ((SimOriginModel) queryModel.SchemaModel.OriginModels[0]).SimDataProvider;
                 DataJob dataJob = new DataJob(
                     queryModel, queryModelClone, dataProvider,
                     TimeSpan.FromMilliseconds(MainViewController.Instance.MainModel.ThrottleInMillis), (int)MainViewController.Instance.MainModel.SampleSize);

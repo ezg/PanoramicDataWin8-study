@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
+using PanoramicDataWin8.controller.data.sim;
 using PanoramicDataWin8.controller.input;
 
 namespace PanoramicDataWin8.model.data.sim
@@ -39,6 +40,13 @@ namespace PanoramicDataWin8.model.data.sim
                 }
             }
         }
+
+        public void CreateSimDataProvider()
+        {
+            SimDataProvider = new SimDataProvider(this);
+        }
+        [JsonIgnore]
+        public SimDataProvider SimDataProvider { get; set; }
 
         private DatasetConfiguration _datasetConfiguration = null;
         public DatasetConfiguration DatasetConfiguration

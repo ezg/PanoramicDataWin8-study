@@ -1,0 +1,32 @@
+﻿<ContentDialog
+    x:Class="PanoramicDataWin8.view.setting.SettingsDialogView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+     xmlns:local="using:PanoramicDataWin8.view.setting"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="SETTINGS"
+    PrimaryButtonText="load"  
+    SecondaryButtonText="cancel"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    SecondaryButtonClick="ContentDialog_SecondaryButtonClick"
+    FontFamily="{StaticResource abel}">
+
+    <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <TextBlock Text="mode" Margin="0,10,0,0"/>
+        <RadioButton Content="instantaneous" GroupName="mode" Name="rbInstantaneous"/>
+        <RadioButton Content="batch" GroupName="mode" Name="rbBatch"/>
+        <RadioButton Content="progressive" GroupName="mode" Name="rbProgressive"/>
+
+        <TextBlock Text="dataset" Margin="0,10,0,0"/>
+        <RadioButton Content="ds1" GroupName="dataset" Name="rbDs1"/>
+        <RadioButton Content="ds2" GroupName="dataset" Name="rbDs2"/>
+        <RadioButton Content="ds3" GroupName="dataset" Name="rbDs3"/>
+        <RadioButton Content="ds4" GroupName="dataset" Name="rbDs4"/>
+
+        <Slider Margin="0,10,0,0" Name="sliderSeed"
+            Header="seed" Minimum="0" Maximum="9" ></Slider>
+       
+    </StackPanel>
+</ContentDialog>

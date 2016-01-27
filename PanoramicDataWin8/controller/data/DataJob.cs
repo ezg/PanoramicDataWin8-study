@@ -81,7 +81,6 @@ namespace PanoramicDataWin8.controller.data
                 };
             }
             _dataProvider.NrSamplesToCheck = samplesToCheck;
-            _dataProvider.QueryModelClone = QueryModelClone;
             Task.Run(() => run());
 
             //ThreadPool.RunAsync(_ => run(), WorkItemPriority.Low);

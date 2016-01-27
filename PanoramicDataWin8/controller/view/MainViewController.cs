@@ -145,6 +145,7 @@ namespace PanoramicDataWin8.controller.view
                 newSchemaModel.QueryExecuter = new SimQueryExecuter();
                 newSchemaModel.RootOriginModel = new SimOriginModel(datasetConfiguration);
                 newSchemaModel.RootOriginModel.LoadInputFields();
+                newSchemaModel.RootOriginModel.CreateSimDataProvider();
 
                 _mainModel.SchemaModel = newSchemaModel;
             }

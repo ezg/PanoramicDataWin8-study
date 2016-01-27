@@ -98,15 +98,13 @@
             </inq:InkableScene>
 
         </Grid>
+        
+        <Grid
+            Margin="10" Width="30" Height="30" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="{StaticResource lightBrush}" Tapped="SettingsButton_OnTapped">
+            <TextBlock HorizontalAlignment="Center " Foreground="{StaticResource darkBrush}" Text="..."/>
+        </Grid>
+        
     </Grid>
     
-    <Page.BottomAppBar >
-        <CommandBar Name="commandBar" Style="{StaticResource CommandBarStyle1}">
-            <AppBarButton Label="Refresh" Icon="Refresh" Style="{StaticResource AppBarButtonStyle1}" Click="Refresh_OnClick"/>
-            <AppBarButton Label="Help" Icon="Help"  Style="{StaticResource AppBarButtonStyle1}"/>
-
-            <CommandBar.SecondaryCommands >
-            </CommandBar.SecondaryCommands>
-        </CommandBar>
-    </Page.BottomAppBar>
+    
 </Page>
