@@ -209,9 +209,11 @@ namespace PanoramicDataWin8
                 if (e.Key == VirtualKey.L)
                 {
                     var interpreter = new Interpreter();
-                    Lambda parsedExpression = interpreter.Parse("test == \"tefst\"",
-                                                new Parameter("test", typeof(string)));
-                    var result = parsedExpression.Invoke("tefst");
+                    //Lambda parsedExpression = interpreter.Parse("test == \"tefst\"",
+                    //                          new Parameter("test", typeof(string)));
+                  Lambda parsedExpression = interpreter.Parse("a == 5 and b == 4",
+                                            new Parameter("a", typeof(double)), new Parameter("b", typeof(double)));
+                  var result = parsedExpression.Invoke(5, 4);
                 }
             }
         }
@@ -255,18 +257,10 @@ namespace PanoramicDataWin8
         {
             MainViewController.CreateInstance(layoutRoot, v1, v2, v3, v4, this);
             DataContext = MainViewController.Instance.MainModel;
-        
-        }
-        private Dictionary<uint, FrameworkElement> _deviceRenderings = new Dictionary<uint, FrameworkElement>();
+            
 
-        
-        void appBarButton_Click(object sender, RoutedEventArgs e)
-        {
-            clearAndDisposeMenus();
-            DatasetConfiguration ds = (sender as AppBarButton).DataContext as DatasetConfiguration;
-            MainViewController.Instance.LoadData(ds);
         }
-
+        
         private void loadInputModels()
         {
             MainModel mainModel = (DataContext as MainModel);
@@ -287,6 +281,9 @@ namespace PanoramicDataWin8
                 TileMenuItemViewModel parentModel = new TileMenuItemViewModel(null);
                 parentModel.ChildrenNrColumns = (int) Math.Ceiling(inputModels.Count()/8.0);
                 parentModel.ChildrenNrRows = (int) Math.Min(8.0, inputModels.Count());
+
+                menuCanvas.Width = (int) Math.Ceiling(inputModels.Count()/8.0) * 50 + ((int)Math.Ceiling(inputModels.Count() / 8.0) -1) * 4;
+
                 parentModel.Alignment = Alignment.LeftOrTop;
                 parentModel.AttachPosition = AttachPosition.Right;
 
@@ -309,8 +306,8 @@ namespace PanoramicDataWin8
                 _inputMenu = new TileMenuItemView {MenuCanvas = menuCanvas, DataContext = parentModel};
                 menuCanvas.Children.Add(_inputMenu);
 
-                parentModel.CurrentPosition = new Pt(0,0);
-                parentModel.TargetPosition = new Pt(0,0);
+                parentModel.CurrentPosition = new Pt(-4,0);
+                parentModel.TargetPosition = new Pt(-4,0);
                 parentModel.Size = new Vec(0,0);
                 parentModel.AreChildrenExpanded = true;
             }
@@ -445,18 +442,56 @@ namespace PanoramicDataWin8
 
         private async void SettingsButton_OnTapped(object sender, TappedRoutedEventArgs e)
         {
-            SettingsDialogView signInDialog = new SettingsDialogView();
-            await signInDialog.ShowAsync();
+            SettingsDialogView signInDialog = new SettingsDialogView(
+                new Settings()
+                {
+                    Dataset = MainViewController.Instance.MainModel.Dataset,
+                    Mode = MainViewController.Instance.MainModel.Mode,
+                    Seed = MainViewController.Instance.MainModel.Seed
+                });
 
+
+            await signInDialog.ShowAsync();
 
             if (signInDialog.Load)
             {
-               
+                clearAndDisposeMenus();
+
+                MainViewController.Instance.MainModel.Dataset = signInDialog.Settings.Dataset;
+                MainViewController.Instance.MainModel.Seed = signInDialog.Settings.Seed;
+                MainViewController.Instance.MainModel.Mode = signInDialog.Settings.Mode;
+
+                if (MainViewController.Instance.MainModel.Dataset == Dataset.ds1)
+                {
+                    MainViewController.Instance.LoadData(MainViewController.Instance.MainModel.DatasetConfigurations.First(ds => ds.Name == "cars"));
+                }
+                else if(MainViewController.Instance.MainModel.Dataset == Dataset.ds2)
+                {
+                    MainViewController.Instance.LoadData(MainViewController.Instance.MainModel.DatasetConfigurations.First(ds => ds.Name == "flights"));
+                }
+                else if (MainViewController.Instance.MainModel.Dataset == Dataset.ds3)
+                {
+                    MainViewController.Instance.LoadData(MainViewController.Instance.MainModel.DatasetConfigurations.First(ds => ds.Name == "census"));
+                }
+                else if (MainViewController.Instance.MainModel.Dataset == Dataset.ds4)
+                {
+                    MainViewController.Instance.LoadData(MainViewController.Instance.MainModel.DatasetConfigurations.First(ds => ds.Name == "titanic"));
+                }
             }
             else
             {
                 
             }
+        }
+
+        private void TbBrush_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+           
+        }
+
+        private void TbBrush_OnTextCompositionEnded(TextBox sender, TextCompositionEndedEventArgs args)
+        {
+            
         }
     }
 }

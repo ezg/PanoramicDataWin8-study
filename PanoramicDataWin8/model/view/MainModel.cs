@@ -173,7 +173,49 @@ namespace PanoramicDataWin8.model.view
                 this.SetProperty(ref _graphRenderOption, value);
             }
         }
+
+        private Mode _mode = Mode.batch;
+        public Mode Mode
+        {
+            get
+            {
+                return _mode;
+            }
+            set
+            {
+                this.SetProperty(ref _mode, value);
+            }
+        }
+
+
+        private Dataset _dataset = Dataset.ds1;
+        public Dataset Dataset
+        {
+            get
+            {
+                return _dataset;
+            }
+            set
+            {
+                this.SetProperty(ref _dataset, value);
+            }
+        }
+
+        private int _seed = 0;
+        public int Seed
+        {
+            get
+            {
+                return _seed;
+            }
+            set
+            {
+                this.SetProperty(ref _seed, value);
+            }
+        }
     }
 
     public enum GraphRenderOptions { Grid, Cell}
+    public enum Mode { instantaneous, batch, progressive }
+    public enum Dataset { ds1, ds2, ds3, ds4 }
 }

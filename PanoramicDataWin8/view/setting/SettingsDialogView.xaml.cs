@@ -12,6 +12,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using PanoramicDataWin8.model.view;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -30,10 +31,6 @@ namespace PanoramicDataWin8.view.setting
             return new Settings() {Dataset = this.Dataset, Mode = this.Mode, Seed = this.Seed};
         }
     }
-
-
-    public enum Mode { instantaneous, batch, progressive }
-    public enum Dataset { ds1, ds2, ds3, ds4 }
 
     public sealed partial class SettingsDialogView : ContentDialog
     {
@@ -74,7 +71,7 @@ namespace PanoramicDataWin8.view.setting
             {
                 rbDs1.IsChecked = true;
             }
-            else if (Settings.Dataset == Dataset.ds3)
+            else if (Settings.Dataset == Dataset.ds2)
             {
                 rbDs2.IsChecked = true;
             }

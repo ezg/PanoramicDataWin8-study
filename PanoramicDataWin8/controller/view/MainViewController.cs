@@ -78,14 +78,8 @@ namespace PanoramicDataWin8.controller.view
                     var content = await Windows.Storage.FileIO.ReadTextAsync(file);
                     _mainModel.DatasetConfigurations.Add(DatasetConfiguration.FromContent(content, file.Name));
                 }
-                if (_mainModel.DatasetConfigurations.Any(ds => ds.Name.ToLower().Contains(startDataSet)))
-                {
-                    LoadData(_mainModel.DatasetConfigurations.First(ds => ds.Name.ToLower().Contains(startDataSet)));
-                }
-                else
-                {
-                    LoadData(_mainModel.DatasetConfigurations.First(ds => ds.Name.ToLower().Contains("nba")));
-                }
+
+                MainViewController.Instance.LoadData(MainViewController.Instance.MainModel.DatasetConfigurations.First(ds => ds.Name == "titanic"));
             }
         }
 
