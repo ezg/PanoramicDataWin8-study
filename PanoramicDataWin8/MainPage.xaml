@@ -58,7 +58,7 @@
                 BorderBrush="{StaticResource darkBrush}" BorderThickness="1"
                 SelectionHighlightColor="{StaticResource highlightBrush}"
                 Name="tbBrush"
-                />
+                KeyUp="TbBrush_OnKeyUp"/>
 
             <Grid
                 Margin="0,20,0,0"

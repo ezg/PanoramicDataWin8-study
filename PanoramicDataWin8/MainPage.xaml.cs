@@ -483,15 +483,13 @@ namespace PanoramicDataWin8
                 
             }
         }
-
-        private void TbBrush_OnTextChanged(object sender, TextChangedEventArgs e)
+        
+        private void TbBrush_OnKeyUp(object sender, KeyRoutedEventArgs e)
         {
-           
-        }
-
-        private void TbBrush_OnTextCompositionEnded(TextBox sender, TextCompositionEndedEventArgs args)
-        {
-            
+            if (e.Key == VirtualKey.Enter)
+            {
+                
+            }
         }
     }
 }
