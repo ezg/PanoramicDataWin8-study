@@ -44,13 +44,19 @@ namespace PanoramicDataWin8.view.common
 
         public void Dispose()
         {
-            this.canvasControl.RemoveFromVisualTree();
-            this.canvasControl = null;
+            if (canvasControl != null)
+            {
+                this.canvasControl.RemoveFromVisualTree();
+                this.canvasControl = null;
+            }
         }
 
         public void Redraw()
         {
-            canvasControl.Invalidate();
+            if (canvasControl != null)
+            {
+                canvasControl.Invalidate();
+            }
         }
 
         public float CompositionScaleX

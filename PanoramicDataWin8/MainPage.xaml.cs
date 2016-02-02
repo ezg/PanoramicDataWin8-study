@@ -38,6 +38,7 @@ using PanoramicDataWin8.controller.input;
 using PanoramicDataWin8.controller.view;
 using PanoramicDataWin8.model.data;
 using PanoramicDataWin8.model.data.result;
+using PanoramicDataWin8.model.data.sim;
 using PanoramicDataWin8.model.data.tuppleware;
 using PanoramicDataWin8.model.view;
 using PanoramicDataWin8.model.view.tilemenu;
@@ -184,20 +185,6 @@ namespace PanoramicDataWin8
                     msgTextBlock.Opacity = 1;
                     _messageTimer.Start();
                 }
-                if (e.Key == VirtualKey.T)
-                {
-                    QueryModel q1 = new QueryModel(MainViewController.Instance.MainModel.SchemaModel, new ResultModel());
-                    QueryModel q2 = new QueryModel(MainViewController.Instance.MainModel.SchemaModel, new ResultModel());
-                    q1.FilterModels.Add(new FilterModel());
-                    LinkModel lm = new LinkModel();
-                    lm.FromQueryModel = q1;
-                    lm.ToQueryModel = q2;
-                    q1.LinkModels.Add(lm);
-                    q2.LinkModels.Add(lm);
-
-                    var tt = q1.Clone();
-
-                }
                 if (e.Key == VirtualKey.P)
                 {
                     Debug.WriteLine("Render Fingers / Pen : " + MainViewController.Instance.MainModel.RenderFingersAndPen);
@@ -211,9 +198,9 @@ namespace PanoramicDataWin8
                     var interpreter = new Interpreter();
                     //Lambda parsedExpression = interpreter.Parse("test == \"tefst\"",
                     //                          new Parameter("test", typeof(string)));
-                  Lambda parsedExpression = interpreter.Parse("a == 5 and b == 4",
-                                            new Parameter("a", typeof(double)), new Parameter("b", typeof(double)));
-                  var result = parsedExpression.Invoke(5, 4);
+                  Lambda parsedExpression = interpreter.Parse("blabla == 5 and b == 4",
+                                            new Parameter("blabla", typeof(string)), new Parameter("b", typeof(double)));
+                  var result = parsedExpression.Invoke("asd", 4);
                 }
             }
         }
@@ -483,13 +470,93 @@ namespace PanoramicDataWin8
                 
             }
         }
-        
+
+
+        private string _currentBrushQuery = "";
         private void TbBrush_OnKeyUp(object sender, KeyRoutedEventArgs e)
         {
             if (e.Key == VirtualKey.Enter)
             {
-                
+                _currentBrushQuery = ((TextBox) sender).Text.Trim();
+                ((TextBox)sender).Background = Application.Current.Resources.MergedDictionaries[0]["backgroundBrush"] as SolidColorBrush;
+
+                bool correct = parseExpression(_currentBrushQuery, errorTbBrush);
+                if (correct)
+                {
+                    MainViewController.Instance.MainModel.BrushQuery = _currentBrushQuery;
+                    fireQueryUpdate();
+                }
             }
+        }
+
+        private void TbBrush_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (((TextBox) sender).Text.Trim() != _currentBrushQuery.Trim())
+            {
+                ((TextBox)sender).Background = Application.Current.Resources.MergedDictionaries[0]["highlightBrush"] as SolidColorBrush;
+            }
+            else
+            {
+                ((TextBox)sender).Background = Application.Current.Resources.MergedDictionaries[0]["backgroundBrush"] as SolidColorBrush;
+            }
+        }
+
+        private string _currentFilterQuery = "";
+        private void TbFilter_OnKeyUp(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Enter)
+            {
+                _currentFilterQuery = ((TextBox) sender).Text.Trim();
+                ((TextBox)sender).Background = Application.Current.Resources.MergedDictionaries[0]["backgroundBrush"] as SolidColorBrush;
+
+                bool correct = parseExpression(_currentFilterQuery, errorTbFilter);
+                if (correct)
+                {
+                    MainViewController.Instance.MainModel.FilterQuery = _currentFilterQuery;
+                    fireQueryUpdate();
+                }
+            }
+        }
+
+        private void TbFilter_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (((TextBox) sender).Text.Trim() != _currentFilterQuery.Trim())
+            {
+                ((TextBox)sender).Background = Application.Current.Resources.MergedDictionaries[0]["highlightBrush"] as SolidColorBrush;
+            }
+            else
+            {
+                ((TextBox)sender).Background = Application.Current.Resources.MergedDictionaries[0]["backgroundBrush"] as SolidColorBrush;
+            }
+        }
+
+        private bool parseExpression(string expr, TextBlock errorTextBox)
+        {
+            var interpreter = new Interpreter();
+            try
+            {
+                var originModel = (MainViewController.Instance.MainModel.SchemaModel as SimSchemaModel).RootOriginModel;
+                List<Parameter> parameters = originModel.CreateParameters();
+                List<object> testValues = originModel.CreateParameterTestValues();
+                Lambda parsedExpression = interpreter.Parse(expr, parameters.ToArray());
+                var result = parsedExpression.Invoke(testValues.ToArray());
+
+                errorTextBox.Text = "";
+                return true;
+            }
+            catch (Exception exception)
+            {
+                errorTextBox.Text = exception.Message;
+            }
+            return false;
+        }
+
+        private void fireQueryUpdate()
+        {
+            MainViewController.Instance.VisualizationViewModel1.QueryModel.FireQueryModelUpdated(QueryModelUpdatedEventType.Structure);
+            MainViewController.Instance.VisualizationViewModel2.QueryModel.FireQueryModelUpdated(QueryModelUpdatedEventType.Structure);
+            MainViewController.Instance.VisualizationViewModel3.QueryModel.FireQueryModelUpdated(QueryModelUpdatedEventType.Structure);
+            MainViewController.Instance.VisualizationViewModel4.QueryModel.FireQueryModelUpdated(QueryModelUpdatedEventType.Structure);
         }
     }
 }

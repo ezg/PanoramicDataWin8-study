@@ -32,7 +32,8 @@ namespace PanoramicDataWin8.controller.data.sim
                 SimDataProvider dataProvider = ((SimOriginModel) queryModel.SchemaModel.OriginModels[0]).SimDataProvider;
                 DataJob dataJob = new DataJob(
                     queryModel, queryModelClone, dataProvider,
-                    TimeSpan.FromMilliseconds(MainViewController.Instance.MainModel.ThrottleInMillis), (int)MainViewController.Instance.MainModel.SampleSize);
+                    TimeSpan.FromMilliseconds(MainViewController.Instance.MainModel.ThrottleInMillis), (int)MainViewController.Instance.MainModel.SampleSize, 
+                    MainViewController.Instance.MainModel.BrushQuery, MainViewController.Instance.MainModel.FilterQuery);
 
                 ActiveJobs.Add(queryModel, dataJob);
                 dataJob.JobUpdate += simJob_JobUpdate;
@@ -50,70 +51,10 @@ namespace PanoramicDataWin8.controller.data.sim
         {
             DataJob dataJob = sender as DataJob;
             var oldItems = dataJob.QueryModel.ResultModel.ResultItemModels;
-
-            // do proper updateing if this is a table
-            /*if (DataJob.QueryModelClone.VisualizationType == VisualizationType.table)
+            oldItems.Clear();
+            foreach (var sample in jobEventArgs.Samples)
             {
-                var cache = _updateIndexCache[DataJob.QueryModelClone];
-
-                // update existing ones
-                for (int i = 0; i < jobEventArgs.Samples.Count; i++)
-                {
-                    var sample = jobEventArgs.Samples[i];
-                    if (cache.ContainsKey(sample.GroupingObject))
-                    {
-                        KeyValuePair<int, ResultItemModel> kvp = cache[sample.GroupingObject];
-                        if (kvp.Key == i)
-                        {
-                            oldItems[i].Update(sample);
-                        }
-                        else
-                        {
-                            kvp.Value.Update(sample);
-                            if (oldItems.Count <= i)
-                            {
-                                oldItems.Add(kvp.Value);
-                            }
-                            else
-                            {
-                                oldItems[i] = kvp.Value;
-                            }
-                        }
-                        sample = oldItems[i];
-                        cache[sample.GroupingObject] = new KeyValuePair<int, ResultItemModel>(i, sample);
-                    }
-                    else
-                    {
-                        if (oldItems.Count <= i)
-                        {
-                            oldItems.Add(sample);
-                        }
-                        else
-                        {
-                            oldItems[i] = sample;
-                        }
-                        cache.Add(sample.GroupingObject, new KeyValuePair<int, ResultItemModel>(i, sample));
-                    }
-                }
-                // remove old ones
-                for (int i = jobEventArgs.Samples.Count; i < oldItems.Count; i++)
-                {
-                    var oldItem = oldItems[i];
-                    oldItems.RemoveAt(i);
-                    if (cache.ContainsKey(oldItem.GroupingObject))
-                    {
-                        cache.Remove(oldItem.GroupingObject);
-                    }
-                }
-            }*/
-            // not a table
-            //else
-            {
-                oldItems.Clear();
-                foreach (var sample in jobEventArgs.Samples)
-                {
-                    oldItems.Add(sample);
-                }
+                oldItems.Add(sample);
             }
 
             dataJob.QueryModel.ResultModel.Progress = jobEventArgs.Progress;

@@ -31,9 +31,7 @@ namespace PanoramicDataWin8.model.data
             {
                 _usageInputOperationModels.Add(inputUsage, new ObservableCollection<InputOperationModel>());
                 _usageInputOperationModels[inputUsage].CollectionChanged += InputOperationModel_CollectionChanged;
-            }
-
-            _linkModels.CollectionChanged += LinkModels_CollectionChanged;
+            } 
         }
 
         public QueryModel()
@@ -63,38 +61,6 @@ namespace PanoramicDataWin8.model.data
                 TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto
             });
             return deserializedQueryModel;
-        }
-
-
-        void LinkModels_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            bool fire = false;
-            if (e.OldItems != null)
-            {
-                foreach (var item in e.OldItems)
-                {
-                    if (Equals(((LinkModel) item).ToQueryModel, this))
-                    {
-                        ((LinkModel) item).FromQueryModel.QueryModelUpdated -= FromQueryModel_QueryModelUpdated;
-                        fire = true;
-                    }
-                }
-            }
-            if (e.NewItems != null)
-            {
-                foreach (var item in e.NewItems)
-                {
-                    if (Equals(((LinkModel) item).ToQueryModel, this))
-                    {
-                        ((LinkModel) item).FromQueryModel.QueryModelUpdated += FromQueryModel_QueryModelUpdated;
-                        fire = true;
-                    }
-                }
-            }
-            if (fire)
-            {
-                FireQueryModelUpdated(QueryModelUpdatedEventType.Structure);
-            }
         }
 
         void FromQueryModel_QueryModelUpdated(object sender, QueryModelUpdatedEventArgs e)
@@ -248,20 +214,7 @@ namespace PanoramicDataWin8.model.data
         {
             return _usageInputOperationModels[inputUsage];
         }
-
-        private ObservableCollection<LinkModel> _linkModels = new ObservableCollection<LinkModel>();
-        public ObservableCollection<LinkModel> LinkModels
-        {
-            get
-            {
-                return _linkModels;
-            }
-            set
-            {
-                this.SetProperty(ref _linkModels, value);
-            }
-        }
-
+        
         private ObservableCollection<FilterModel> _filterModels = new ObservableCollection<FilterModel>();
         public ObservableCollection<FilterModel> FilterModels
         {

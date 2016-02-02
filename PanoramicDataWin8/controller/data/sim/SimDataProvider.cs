@@ -64,7 +64,6 @@ namespace PanoramicDataWin8.controller.data.sim
             while (line != null)
             {
                 Dictionary<InputFieldModel, object> items = new Dictionary<InputFieldModel, object>();
-                items[_simOriginModel.IdInputModel] = count;
 
                 List<string> values = null;
                 if (_simOriginModel.DatasetConfiguration.UseQuoteParsing)
@@ -139,15 +138,15 @@ namespace PanoramicDataWin8.controller.data.sim
             {
                 Debug.WriteLine("Full dataset loaded");
             }
-            _dataPage = new DataPage() { DataRows = returnList, IsEmpty = false };
+            _dataPage = new DataPage() { DataRows = returnList };
         }
 
-        public override async Task StartSampling()
+        public override void StartSampling()
         {
             _nrProcessedSamples = 0;
         }
 
-        public override async Task<DataPage> GetSampleDataRows(int sampleSize)
+        public override DataPage GetSampleDataRows(int sampleSize)
         {
             if (_nrProcessedSamples < GetNrTotalSamples())
             {
@@ -161,7 +160,7 @@ namespace PanoramicDataWin8.controller.data.sim
                 {
                     Debug.WriteLine("From File Time: " + sw.ElapsedMilliseconds);
                 }
-                return new DataPage() {DataRows = returnList, IsEmpty = false};
+                return new DataPage() {DataRows = returnList };
             }
             else
             {

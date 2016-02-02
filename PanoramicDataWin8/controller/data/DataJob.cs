@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Core;
+using DynamicExpresso;
 using PanoramicDataWin8.controller.data.tuppleware;
 using PanoramicDataWin8.controller.view;
 using PanoramicDataWin8.model.data;
 using PanoramicDataWin8.model.data.common;
 using PanoramicDataWin8.model.data.result;
+using PanoramicDataWin8.model.data.sim;
 
 namespace PanoramicDataWin8.controller.data
 {
@@ -31,11 +34,17 @@ namespace PanoramicDataWin8.controller.data
 
         public QueryModel QueryModel { get; set; }
         public QueryModel QueryModelClone { get; set; }
+        public string BrushQuery { get; set; }
+        public string FilterQuery { get; set; }
 
-        public DataJob(QueryModel queryModel, QueryModel queryModelClone, DataProvider dataProvider, TimeSpan throttle, int sampleSize)
+        public DataJob(QueryModel queryModel, QueryModel queryModelClone, DataProvider dataProvider, TimeSpan throttle, int sampleSize, string brushQuery, string filterQuery)
         {
             QueryModel = queryModel;
             QueryModelClone = queryModelClone;
+
+            BrushQuery = brushQuery;
+            FilterQuery = filterQuery;
+
             _dataProvider = dataProvider;
             _sampleSize = sampleSize;
             _throttle = throttle;
@@ -100,18 +109,15 @@ namespace PanoramicDataWin8.controller.data
             {
                 if (!_dataProvider.IsInitialized)
                 {
-                    await _dataProvider.StartSampling();
+                    _dataProvider.StartSampling();
                 }
-                DataPage dataPage = await _dataProvider.GetSampleDataRows(_sampleSize);
-                while (dataPage.IsEmpty)
-                {
-                    await Task.Delay(100);
-                    dataPage = await _dataProvider.GetSampleDataRows(_sampleSize);
-                }
-
+                DataPage dataPage = _dataProvider.GetSampleDataRows(_sampleSize);
+                
                 List<ResultItemModel> resultItemModels = new List<ResultItemModel>();
                 while (dataPage != null && _isRunning)
                 {
+                    filterDataPage(dataPage);
+
                     Stopwatch sw = new Stopwatch();
                     sw.Start();
                     if (QueryModelClone.VisualizationType != VisualizationType.table)
@@ -168,7 +174,7 @@ namespace PanoramicDataWin8.controller.data
                     {
                         Debug.WriteLine("DataJob Iteration Time: " + sw.ElapsedMilliseconds);
                     }
-                    dataPage = await _dataProvider.GetSampleDataRows(_sampleSize);
+                    dataPage = _dataProvider.GetSampleDataRows(_sampleSize);
 
                     if (_throttle.Ticks > 0)
                     {
@@ -189,6 +195,39 @@ namespace PanoramicDataWin8.controller.data
             {
                 ErrorHandler.HandleError(exc.Message);
             }
+        }
+
+        private void filterDataPage(DataPage dataPage)
+        {
+            if (FilterQuery != "")
+            {
+                var interpreter = new Interpreter(); var originModel = ((SimSchemaModel)QueryModel.SchemaModel).RootOriginModel;
+                List<Parameter> parameters = originModel.CreateParameters();
+                
+                Lambda parsedExpression = interpreter.Parse(FilterQuery, parameters.ToArray());
+                List<DataRow> filteredRows = new List<DataRow>();
+                foreach (var row in dataPage.DataRows)
+                {
+                    List<object> rowValues = createRowValues(row);
+                    var result = parsedExpression.Invoke(rowValues.ToArray());
+                    if (result is bool && (bool)result)
+                    {
+                        filteredRows.Add(row);
+                    }
+                }
+                dataPage.DataRows = filteredRows;
+            }
+        }
+
+        private List<object> createRowValues(DataRow row)
+        {
+            List<object> values = new List<object>();
+
+            foreach (var inputModel in ((SimSchemaModel)QueryModel.SchemaModel).RootOriginModel.InputModels.OfType<InputFieldModel>())
+            {
+                values.Add(row.Entries[inputModel]);
+            }
+            return values;
         }
 
         private void setVisualizationValues(List<DataRow> samples)

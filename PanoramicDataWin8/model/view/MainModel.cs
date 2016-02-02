@@ -213,6 +213,32 @@ namespace PanoramicDataWin8.model.view
                 this.SetProperty(ref _seed, value);
             }
         }
+
+        private string _brushQuery = "";
+        public string BrushQuery
+        {
+            get
+            {
+                return _brushQuery;
+            }
+            set
+            {
+                this.SetProperty(ref _brushQuery, value);
+            }
+        }
+
+        private string _filterQuery = "";
+        public string FilterQuery
+        {
+            get
+            {
+                return _filterQuery;
+            }
+            set
+            {
+                this.SetProperty(ref _filterQuery, value);
+            }
+        }
     }
 
     public enum GraphRenderOptions { Grid, Cell}

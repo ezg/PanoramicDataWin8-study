@@ -48,7 +48,7 @@ namespace PanoramicDataWin8.view.vis
 
             this.Loaded += VisualizationContainerView_Loaded;
             this.DataContextChanged += visualizationContainerView_DataContextChanged;
-            MainViewController.Instance.InkableScene.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(InkableScene_PointerPressed), true);
+            //MainViewController.Instance.InkableScene.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(InkableScene_PointerPressed), true);
         }
 
         public void Dispose()
@@ -59,24 +59,9 @@ namespace PanoramicDataWin8.view.vis
             }
         }
 
-
-        private void InkableScene_PointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            var ancestors = (e.OriginalSource as FrameworkElement).GetAncestors();
-            if (!ancestors.Contains(this) && _fingerDown)
-            {
-                MainViewController.Instance.CopyVisualisationViewModel(this.DataContext as VisualizationViewModel, e.GetCurrentPoint(MainViewController.Instance.InkableScene).Position);
-            }
-        }
-
         void VisualizationContainerView_Loaded(object sender, RoutedEventArgs e)
         {
             this.PointerPressed += VisualizationContainerView_PointerPressed;
-
-            _resizePointerManager.Added += resizePointerManager_Added;
-            _resizePointerManager.Moved += resizePointerManager_Moved;
-            _resizePointerManager.Removed += resizePointerManager_Removed;
-            _resizePointerManager.Attach(resizeGrid);
         }
 
         void visualizationContainerView_DataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
@@ -269,47 +254,14 @@ namespace PanoramicDataWin8.view.vis
                 avm.IsDisplayed = false;
             }
 
-            if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
-            {
-                var properties = e.GetCurrentPoint(this).Properties;
-                if (properties.PointerUpdateKind == PointerUpdateKind.RightButtonReleased)
-                {
-                    MainViewController.Instance.RemoveVisualizationViewModel(this);
-                }
-            }
-        }
-
-
-        void resizePointerManager_Added(object sender, PointerManagerEvent e)
-        {
-            if (e.NumActiveContacts == 1)
-            {
-                GeneralTransform gt = resizeGrid.TransformToVisual(MainViewController.Instance.InkableScene);
-                _resizePointerManagerPreviousPoint = gt.TransformPoint(e.CurrentContacts[e.TriggeringPointer.PointerId].Position);
-
-                //VisualizationViewModel model = (DataContext as VisualizationViewModel);
-                //model.AttachementViewModels.ForEach(avm => avm.Value.IsDisplayed = true);
-            }
-        }
-
-        void resizePointerManager_Moved(object sender, PointerManagerEvent e)
-        {
-            if (e.NumActiveContacts == 1)
-            {
-                GeneralTransform gt = resizeGrid.TransformToVisual(MainViewController.Instance.InkableScene);
-                Point currentPoint = gt.TransformPoint(e.CurrentContacts[e.TriggeringPointer.PointerId].Position);
-
-                Vec delta = _resizePointerManagerPreviousPoint.GetVec() - currentPoint.GetVec();
-                VisualizationViewModel model = (DataContext as VisualizationViewModel);
-                model.Size = new Vec(Math.Max(model.Size.X - delta.X, VisualizationViewModel.MIN_WIDTH), Math.Max(model.Size.Y - delta.Y, VisualizationViewModel.MIN_HEIGHT));
-                _resizePointerManagerPreviousPoint = currentPoint;
-            }
-        }
-
-        void resizePointerManager_Removed(object sender, PointerManagerEvent e)
-        {
-            //VisualizationViewModel model = (DataContext as VisualizationViewModel);
-            //model.AttachementViewModels.ForEach(avm => avm.Value.IsDisplayed = false);
+            //if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
+            //{
+            //    var properties = e.GetCurrentPoint(this).Properties;
+            //    if (properties.PointerUpdateKind == PointerUpdateKind.RightButtonReleased)
+            //    {
+            //        MainViewController.Instance.RemoveVisualizationViewModel(this);
+            //    }
+            //}
         }
 
         public GeoAPI.Geometries.IGeometry Geometry

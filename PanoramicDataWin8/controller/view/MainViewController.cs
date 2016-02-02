@@ -29,10 +29,10 @@ namespace PanoramicDataWin8.controller.view
         private Grid _gridV3 = null;
         private Grid _gridV4 = null;
 
-        private VisualizationViewModel _visualizationViewModel1 = null;
-        private VisualizationViewModel _visualizationViewModel2 = null;
-        private VisualizationViewModel _visualizationViewModel3 = null;
-        private VisualizationViewModel _visualizationViewModel4 = null;
+        public VisualizationViewModel VisualizationViewModel1 { get; private set; } = null;
+        public VisualizationViewModel VisualizationViewModel2 { get; private set; } = null;
+        public VisualizationViewModel VisualizationViewModel3 { get; private set; } = null;
+        public VisualizationViewModel VisualizationViewModel4 { get; private set; } = null;
 
         private MainViewController(InkableScene root, Grid v1, Grid v2, Grid v3, Grid v4, MainPage mainPage)
         {
@@ -147,8 +147,8 @@ namespace PanoramicDataWin8.controller.view
 
             // refresh visualization views
             VisualizationContainerView visualizationContainerView = new VisualizationContainerView();
-            _visualizationViewModel1 = CreateVisualizationViewModel(null, VisualizationType.plot);
-            visualizationContainerView.DataContext = _visualizationViewModel1;
+            VisualizationViewModel1 = CreateVisualizationViewModel(null, VisualizationType.plot);
+            visualizationContainerView.DataContext = VisualizationViewModel1;
             if (_gridV1.Children.Count > 0)
             {
                 ((VisualizationContainerView) _gridV1.Children[0]).Dispose();
@@ -157,8 +157,8 @@ namespace PanoramicDataWin8.controller.view
             _gridV1.Children.Add(visualizationContainerView);
 
             visualizationContainerView = new VisualizationContainerView();
-            _visualizationViewModel2 = CreateVisualizationViewModel(null, VisualizationType.plot);
-            visualizationContainerView.DataContext = _visualizationViewModel2;
+            VisualizationViewModel2 = CreateVisualizationViewModel(null, VisualizationType.plot);
+            visualizationContainerView.DataContext = VisualizationViewModel2;
             if (_gridV2.Children.Count > 0)
             {
                 ((VisualizationContainerView)_gridV2.Children[0]).Dispose();
@@ -167,8 +167,8 @@ namespace PanoramicDataWin8.controller.view
             _gridV2.Children.Add(visualizationContainerView);
 
             visualizationContainerView = new VisualizationContainerView();
-            _visualizationViewModel3 = CreateVisualizationViewModel(null, VisualizationType.plot);
-            visualizationContainerView.DataContext = _visualizationViewModel3;
+            VisualizationViewModel3 = CreateVisualizationViewModel(null, VisualizationType.plot);
+            visualizationContainerView.DataContext = VisualizationViewModel3;
             if (_gridV3.Children.Count > 0)
             {
                 ((VisualizationContainerView)_gridV3.Children[0]).Dispose();
@@ -178,8 +178,8 @@ namespace PanoramicDataWin8.controller.view
 
 
             visualizationContainerView = new VisualizationContainerView();
-            _visualizationViewModel4 = CreateVisualizationViewModel(null, VisualizationType.plot);
-            visualizationContainerView.DataContext = _visualizationViewModel4;
+            VisualizationViewModel4 = CreateVisualizationViewModel(null, VisualizationType.plot);
+            visualizationContainerView.DataContext = VisualizationViewModel4;
             if (_gridV4.Children.Count > 0)
             {
                 ((VisualizationContainerView)_gridV4.Children[0]).Dispose();
@@ -261,74 +261,7 @@ namespace PanoramicDataWin8.controller.view
                 }
             }
         }
-
-        public LinkViewModel CreateLinkViewModel(LinkModel linkModel)
-        {
-            /*LinkViewModel linkViewModel = LinkViewModels.FirstOrDefault(lvm => lvm.ToVisualizationViewModel == VisualizationViewModels.Where(vvm => vvm.QueryModel == linkModel.ToQueryModel).First());
-            if (linkViewModel == null)
-            {
-                linkViewModel = new LinkViewModel()
-                {
-                    ToVisualizationViewModel = VisualizationViewModels.Where(vvm => vvm.QueryModel == linkModel.ToQueryModel).First(),
-                };
-                _linkViewModels.Add(linkViewModel);
-                LinkView linkView = new LinkView();
-                linkView.DataContext = linkViewModel;
-                _root.AddToBack(linkView);
-            }
-            if (!linkViewModel.LinkModels.Contains(linkModel))
-            {
-                linkViewModel.LinkModels.Add(linkModel);
-                linkViewModel.FromVisualizationViewModels.Add(VisualizationViewModels.Where(vvm => vvm.QueryModel == linkModel.FromQueryModel).First());
-            }
-
-            return linkViewModel;
-             */
-            return null;
-        }
-
-        private bool isLinkAllowed(LinkModel linkModel)
-        {
-            List<LinkModel> linkModels = linkModel.FromQueryModel.LinkModels.Where(lm => lm.FromQueryModel == linkModel.FromQueryModel).ToList();
-            linkModels.Add(linkModel);
-            return !recursiveCheckForCiruclarLinking(linkModels, linkModel.FromQueryModel, new HashSet<QueryModel>());
-        } 
-
-        private bool recursiveCheckForCiruclarLinking(List<LinkModel> links, QueryModel current, HashSet<QueryModel> chain)
-        {
-            if (!chain.Contains(current))
-            {
-                chain.Add(current);
-                bool ret = false;
-                foreach (var link in links)
-                {
-                    ret = ret || recursiveCheckForCiruclarLinking(link.ToQueryModel.LinkModels.Where(lm => lm.FromQueryModel == link.ToQueryModel).ToList(), link.ToQueryModel, chain);
-                }
-                return ret;
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        public void RemoveLinkViewModel(LinkModel linkModel)
-        {
-            /*
-            foreach (var linkViewModel in LinkViewModels.ToArray()) 
-            {
-                if (linkViewModel.LinkModels.Contains(linkModel))
-                {
-                    linkViewModel.LinkModels.Remove(linkModel);
-                }
-                if (linkViewModel.LinkModels.Count == 0)
-                {
-                    LinkViewModels.Remove(linkViewModel);
-                    _root.Remove(_root.Elements.First(e => e is LinkView && (e as LinkView).DataContext == linkViewModel));
-                }
-            }*/
-        }
-
+        
         void TaskModelMoved(object sender, TaskModelEventArgs e)
         {
             

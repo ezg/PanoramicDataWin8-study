@@ -39,27 +39,40 @@
                
             </Grid>
 
-            <TextBox 
-                Header="filter"
+            <StackPanel 
+                Orientation="Vertical"
                 Grid.Row="0"
                 Grid.Column="1"
-                Margin="10,0,10,0"
-                AcceptsReturn="False" PlaceholderText="filter" Height="60"
-                BorderBrush="{StaticResource darkBrush}" BorderThickness="1"
-                SelectionHighlightColor="{StaticResource highlightBrush}"
-                Name="tbFilter"/>
+                Margin="10,0,10,0">
+                <TextBox 
+                    Header="filter"
+                    AcceptsReturn="False" PlaceholderText="filter" Height="60"
+                    BorderThickness="1"
+                    Style="{StaticResource filterTextBoxStyle}" Background="{StaticResource backgroundBrush}"
+                    SelectionHighlightColor="{StaticResource highlightBrush}"
+                    Name="tbFilter"
+                    TextChanged="TbFilter_OnTextChanged"
+                    KeyUp="TbFilter_OnKeyUp"/>
+                <TextBlock Name="errorTbFilter" Text="" FontSize="12" Foreground="DarkRed"></TextBlock>
+            </StackPanel>
 
-            <TextBox 
+            <StackPanel 
+                Orientation="Vertical"
                 Grid.Row="0"
-                Header="brush"
                 Grid.Column="2"
-                Margin="10,0,10,0"
-                AcceptsReturn="False" PlaceholderText="brush" Height="60"
-                BorderBrush="{StaticResource darkBrush}" BorderThickness="1"
-                SelectionHighlightColor="{StaticResource highlightBrush}"
-                Name="tbBrush"
-                KeyUp="TbBrush_OnKeyUp"/>
-
+                Margin="10,0,10,0">
+                <TextBox 
+                    Header="brush"
+                    AcceptsReturn="False" PlaceholderText="brush" Height="60"
+                    BorderThickness="1"
+                    Style="{StaticResource filterTextBoxStyle}" Background="{StaticResource backgroundBrush}"
+                    SelectionHighlightColor="{StaticResource highlightBrush}"
+                    Name="tbBrush"
+                    TextChanged="TbBrush_OnTextChanged"
+                    KeyUp="TbBrush_OnKeyUp"/>
+                <TextBlock Name="errorTbBrush" Text="" FontSize="12" Foreground="DarkRed"></TextBlock>
+            </StackPanel>
+            
             <Grid
                 Margin="0,20,0,0"
                 Grid.Column="0"
