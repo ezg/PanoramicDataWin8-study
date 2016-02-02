@@ -12,7 +12,7 @@ namespace PanoramicDataWin8.model.data
     {
         public double? Value { get; set; }
         public List<ValueComparison> ValueComparisons { get; set; }
-        
+
         public FilterModel()
         {
             ValueComparisons = new List<ValueComparison>();
@@ -29,7 +29,7 @@ namespace PanoramicDataWin8.model.data
             if (obj is FilterModel)
             {
                 compareTo = obj as FilterModel;
-                
+
                 bool valueComp = Compare(this.ValueComparisons, compareTo.ValueComparisons);
                 return valueComp;
             }
@@ -56,53 +56,10 @@ namespace PanoramicDataWin8.model.data
 
         public string ToPythonString()
         {
-            string ret = "(" + string.Join("and", ValueComparisons.Select(vc => vc.ToPythonString())) + ")";
+            string ret = "(" + string.Join("&&", ValueComparisons.Select(vc => vc.ToPythonString())) + ")";
             return ret;
         }
 
-        public static string GetFilterModelsRecursive(QueryModel queryModel, List<QueryModel> visitedQueryModels, List<FilterModel> filterModels, bool isFirst)
-        {
-            string ret = "";
-            visitedQueryModels.Add(queryModel);
-            if (!isFirst && queryModel.FilterModels.Count(fm => fm.ValueComparisons.Count > 0) > 0)
-            {
-                filterModels.AddRange(queryModel.FilterModels.Where(fm => fm.ValueComparisons.Count > 0));
-                ret = "(" + string.Join(" or ", queryModel.FilterModels.Select(fm => fm.ToPythonString())) + ")";
-            }
-
-
-            List<string> children = new List<string>();
-            foreach (var linkModel in queryModel.LinkModels)
-            {
-                if (linkModel.FromQueryModel != null && !visitedQueryModels.Contains(linkModel.FromQueryModel))
-                {
-                    var child = GetFilterModelsRecursive(linkModel.FromQueryModel, visitedQueryModels, filterModels, false);
-                    if (child != "")
-                    {
-                        if (linkModel.IsInverted)
-                        {
-                            child = "not " + child;
-                        }
-                        children.Add(child);
-                    }
-                }
-            }
-
-            string childrenJoined = string.Join(queryModel.FilteringOperation.ToString().ToLower(), children);
-            if (children.Count > 0)
-            {
-                if (ret != "")
-                {
-                    ret = "(" + ret + " and " + childrenJoined + ")";
-                }
-                else
-                {
-                    ret = "(" + childrenJoined + ")";
-                }
-            }
-
-            return ret;
-        }
     }
 
     public enum Predicate { EQUALS, LIKE, GREATER_THAN, LESS_THAN, GREATER_THAN_EQUAL, LESS_THAN_EQUAL }

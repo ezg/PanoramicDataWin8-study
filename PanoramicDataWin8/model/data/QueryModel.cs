@@ -134,20 +134,7 @@ namespace PanoramicDataWin8.model.data
                 this.SetProperty(ref _schemaModel, value);
             }
         }
-
-        private FilteringOperation _filteringOperation = FilteringOperation.AND;
-        public FilteringOperation FilteringOperation
-        {
-            get
-            {
-                return _filteringOperation;
-            }
-            set
-            {
-                this.SetProperty(ref _filteringOperation, value);
-            }
-        }
-
+        
         private VisualizationType _visualizationType;
         public VisualizationType VisualizationType
         {
@@ -162,7 +149,6 @@ namespace PanoramicDataWin8.model.data
         }
 
         private Dictionary<InputUsage, ObservableCollection<InputOperationModel>> _usageInputOperationModels = new Dictionary<InputUsage, ObservableCollection<InputOperationModel>>();
-       
         public Dictionary<InputUsage, ObservableCollection<InputOperationModel>> UsageInputOperationModels
         {
             get
@@ -230,7 +216,7 @@ namespace PanoramicDataWin8.model.data
             {
                 _filterModels.Remove(filterModel);
             }
-            FireQueryModelUpdated(QueryModelUpdatedEventType.FilterModels);
+            FireQueryModelUpdated(QueryModelUpdatedEventType.ClearFilterModels);
         }
 
         public void AddFilterModels(List<FilterModel> filterModels)
@@ -410,7 +396,7 @@ namespace PanoramicDataWin8.model.data
         }
     }
 
-    public enum QueryModelUpdatedEventType { Structure, Links, FilterModels }
+    public enum QueryModelUpdatedEventType { Structure, Links, FilterModels, ClearFilterModels }
     
     public enum VisualizationType { table, plot, map, line }
 }

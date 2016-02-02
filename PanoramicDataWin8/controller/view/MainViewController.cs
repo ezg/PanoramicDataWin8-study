@@ -53,8 +53,6 @@ namespace PanoramicDataWin8.controller.view
             
             VisualizationTypeViewModel.VisualizationTypeViewModelDropped += VisualizationTypeViewModel_VisualizationTypeViewModelDropped;
             VisualizationTypeViewModel.VisualizationTypeViewModelMoved += VisualizationTypeViewModel_VisualizationTypeViewModelMoved;
-
-            //VisualizationViewModels.CollectionChanged += VisualizationViewModels_CollectionChanged;
         }
 
         public async void LoadConfigs()
@@ -155,6 +153,7 @@ namespace PanoramicDataWin8.controller.view
             }
             _gridV1.Children.Clear();
             _gridV1.Children.Add(visualizationContainerView);
+            VisualizationViewModel1.QueryModel.QueryModelUpdated += QueryModel_QueryModelUpdated;
 
             visualizationContainerView = new VisualizationContainerView();
             VisualizationViewModel2 = CreateVisualizationViewModel(null, VisualizationType.plot);
@@ -165,6 +164,7 @@ namespace PanoramicDataWin8.controller.view
             }
             _gridV2.Children.Clear();
             _gridV2.Children.Add(visualizationContainerView);
+            VisualizationViewModel2.QueryModel.QueryModelUpdated += QueryModel_QueryModelUpdated;
 
             visualizationContainerView = new VisualizationContainerView();
             VisualizationViewModel3 = CreateVisualizationViewModel(null, VisualizationType.plot);
@@ -175,7 +175,7 @@ namespace PanoramicDataWin8.controller.view
             }
             _gridV3.Children.Clear();
             _gridV3.Children.Add(visualizationContainerView);
-
+            VisualizationViewModel3.QueryModel.QueryModelUpdated += QueryModel_QueryModelUpdated;
 
             visualizationContainerView = new VisualizationContainerView();
             VisualizationViewModel4 = CreateVisualizationViewModel(null, VisualizationType.plot);
@@ -186,7 +186,29 @@ namespace PanoramicDataWin8.controller.view
             }
             _gridV4.Children.Clear();
             _gridV4.Children.Add(visualizationContainerView);
+            VisualizationViewModel4.QueryModel.QueryModelUpdated += QueryModel_QueryModelUpdated;
         }
+
+        private void QueryModel_QueryModelUpdated(object sender, QueryModelUpdatedEventArgs e)
+        {
+            if (e.QueryModelUpdatedEventType == QueryModelUpdatedEventType.FilterModels)
+            {
+                var visModels = new List<VisualizationViewModel>(new VisualizationViewModel[] {VisualizationViewModel1, VisualizationViewModel2, VisualizationViewModel3, VisualizationViewModel4});
+                foreach (var visualizationViewModel in visModels)
+                {
+                    if (visualizationViewModel.QueryModel != sender)
+                    {
+                        visualizationViewModel.QueryModel.ClearFilterModels();
+                    }
+                    else
+                    {
+                        string ret = "" + string.Join(" || ", visualizationViewModel.QueryModel.FilterModels.Select(fm => fm.ToPythonString())) + "";
+                    }
+                }
+            }
+
+        }
+
         public VisualizationViewModel CreateVisualizationViewModel(TaskModel taskModel, InputOperationModel inputOperationModel)
         {
             VisualizationViewModel visModel = VisualizationViewModelFactory.CreateDefault(_mainModel.SchemaModel, taskModel, inputOperationModel != null ? inputOperationModel.InputModel : null);
@@ -429,46 +451,6 @@ namespace PanoramicDataWin8.controller.view
                 visualizationContainerView.DataContext = visualizationViewModel;
                 InkableScene.Add(visualizationContainerView);
             }*/
-        }
-
-        void VisualizationViewModels_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.OldItems != null)
-            {
-                foreach (var item in e.OldItems)
-                {
-                    (item as VisualizationViewModel).QueryModel.LinkModels.CollectionChanged -= LinkModels_CollectionChanged;
-                    foreach (var link in (item as VisualizationViewModel).QueryModel.LinkModels)
-                    {
-                        RemoveLinkViewModel(link);
-                    }
-                }
-            }
-            if (e.NewItems != null)
-            {
-                foreach (var item in e.NewItems)
-                {
-                    (item as VisualizationViewModel).QueryModel.LinkModels.CollectionChanged += LinkModels_CollectionChanged;
-                }
-            }
-        }
-
-        void LinkModels_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.OldItems != null)
-            {
-                foreach (var item in e.OldItems)
-                {
-                    RemoveLinkViewModel(item as LinkModel);
-                }
-            }
-            if (e.NewItems != null)
-            {
-                foreach (var item in e.NewItems)
-                {
-                    CreateLinkViewModel(item as LinkModel);
-                }
-            }
         }
     }
 }
