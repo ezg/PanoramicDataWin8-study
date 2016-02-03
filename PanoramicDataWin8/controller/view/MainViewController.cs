@@ -194,19 +194,44 @@ namespace PanoramicDataWin8.controller.view
             if (e.QueryModelUpdatedEventType == QueryModelUpdatedEventType.FilterModels)
             {
                 var visModels = new List<VisualizationViewModel>(new VisualizationViewModel[] {VisualizationViewModel1, VisualizationViewModel2, VisualizationViewModel3, VisualizationViewModel4});
+                QueryModel brushQueryModel = null;
                 foreach (var visualizationViewModel in visModels)
                 {
-                    if (visualizationViewModel.QueryModel != sender)
+                    if (visualizationViewModel.QueryModel == sender)
                     {
-                        visualizationViewModel.QueryModel.ClearFilterModels();
-                    }
-                    else
-                    {
-                        string ret = "" + string.Join(" || ", visualizationViewModel.QueryModel.FilterModels.Select(fm => fm.ToPythonString())) + "";
+                        brushQueryModel = visualizationViewModel.QueryModel;
                     }
                 }
+                SetBrushQuery(brushQueryModel);
             }
+        }
 
+        public void SetBrushQuery(QueryModel queryModel)
+        {
+            var query = string.Join(" || ", queryModel.FilterModels.Select(fm => fm.ToPythonString())) + "";
+            MainPage.SetBrushQuery(query);
+            MainModel.BrushQueryModel = queryModel;
+            MainModel.BrushQuery = query;
+            var visModels = new List<VisualizationViewModel>(new VisualizationViewModel[] { VisualizationViewModel1, VisualizationViewModel2, VisualizationViewModel3, VisualizationViewModel4 });
+            foreach (var visualizationViewModel in visModels)
+            {
+                if (visualizationViewModel.QueryModel != queryModel)
+                {
+                    visualizationViewModel.QueryModel.ClearFilterModels();
+                }
+            }
+        }
+
+
+        public void SetBrushQuery(string brushQuery)
+        {
+            var visModels = new List<VisualizationViewModel>(new VisualizationViewModel[] { VisualizationViewModel1, VisualizationViewModel2, VisualizationViewModel3, VisualizationViewModel4 });
+            MainModel.BrushQueryModel = null;
+            MainModel.BrushQuery = brushQuery;
+            foreach (var visualizationViewModel in visModels)
+            {
+                visualizationViewModel.QueryModel.ClearFilterModels();
+            }
         }
 
         public VisualizationViewModel CreateVisualizationViewModel(TaskModel taskModel, InputOperationModel inputOperationModel)
@@ -284,51 +309,6 @@ namespace PanoramicDataWin8.controller.view
             }
         }
         
-        void TaskModelMoved(object sender, TaskModelEventArgs e)
-        {
-            
-        }
-
-        void TaskModelDropped(object sender, TaskModelEventArgs e)
-        {
-            double width = VisualizationViewModel.WIDTH;
-            double height = VisualizationViewModel.HEIGHT;
-            Vec size = new Vec(width, height);
-            Pt position = (Pt)new Vec(e.Bounds.Center.X, e.Bounds.Center.Y) - size / 2.0;
-
-            IGeometry mainPageBounds = e.Bounds.GetPolygon();
-            List<VisualizationContainerView> hits = new List<VisualizationContainerView>();
-            foreach (var element in InkableScene.Elements.Where(ele => ele is VisualizationContainerView).Select(ele => ele as VisualizationContainerView))
-            {
-                var geom = element.GetBounds(InkableScene).GetPolygon();
-                if (geom != null && mainPageBounds.Intersects(geom))
-                {
-                    hits.Add(element);
-                }
-            }
-
-            bool found = false;
-            foreach (var element in hits)
-            {
-                if ((element.DataContext as VisualizationViewModel).QueryModel.TaskModel != null)
-                {
-                    (element.DataContext as VisualizationViewModel).QueryModel.TaskModel = (sender as TaskModel);
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found)
-            {
-                VisualizationContainerView visualizationContainerView = new VisualizationContainerView();
-                VisualizationViewModel visualizationViewModel = CreateVisualizationViewModel((sender as TaskModel), null);
-                visualizationViewModel.Position = position;
-                visualizationViewModel.Size = size;
-                visualizationContainerView.DataContext = visualizationViewModel;
-                InkableScene.Add(visualizationContainerView);
-            }
-        }
-
         void VisualizationTypeViewModel_VisualizationTypeViewModelMoved(object sender, VisualizationTypeViewModelEventArgs e)
         {
         }

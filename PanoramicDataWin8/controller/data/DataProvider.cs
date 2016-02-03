@@ -7,10 +7,8 @@ namespace PanoramicDataWin8.controller.data
     public abstract class DataProvider
     {
         public bool IsInitialized { get; set; }
-        public int NrSamplesToCheck { get; set; }
         public abstract void StartSampling();
-        public abstract DataPage GetSampleDataRows(int sampleSize);
-        public abstract double Progress();
+        public abstract DataPage GetSampleDataRows(int from, int sampleSize);
         public abstract int GetNrTotalSamples();
     }
 

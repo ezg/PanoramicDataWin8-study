@@ -214,6 +214,21 @@ namespace PanoramicDataWin8.model.view
             }
         }
 
+
+        private QueryModel _brushQueryModel = null;
+        public QueryModel BrushQueryModel
+        {
+            get
+            {
+                return _brushQueryModel;
+            }
+            set
+            {
+                this.SetProperty(ref _brushQueryModel, value);
+            }
+        }
+
+
         private string _brushQuery = "";
         public string BrushQuery
         {

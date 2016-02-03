@@ -413,7 +413,12 @@ namespace PanoramicDataWin8.view.vis.render
 
                                 float alpha = 0.1f * (float)Math.Log10(value.Value) + 1f;
                                 var lerpColor = LABColor.Lerp(Windows.UI.Color.FromArgb(255, 222, 227, 229), Windows.UI.Color.FromArgb(255, 40, 170, 213), (float)Math.Sqrt(value.Value));
-                                var binColor = Color.FromArgb(255, lerpColor.R, lerpColor.G, lerpColor.B);
+                                var dataColor = Color.FromArgb(255, lerpColor.R, lerpColor.G, lerpColor.B);
+
+                                //var brushBaseColor = Windows.UI.Color.FromArgb(178, 77, 148, 125);
+                                var brushBaseColor = Windows.UI.Color.FromArgb(255, 178, 77, 148);
+                                lerpColor = LABColor.Lerp(Windows.UI.Color.FromArgb(255, 240, 219, 232), brushBaseColor, (float)Math.Sqrt(value.Value));
+                                var brushColor = Color.FromArgb(255, lerpColor.R, lerpColor.G, lerpColor.B);
 
                                 rect = new Rect(
                                     xFrom,
@@ -423,16 +428,58 @@ namespace PanoramicDataWin8.view.vis.render
 
                                 if (!_isXAxisAggregated && !_isYAxisAggregated)
                                 {
+                                    // draw data rect
                                     var currentMat = canvasArgs.DrawingSession.Transform;
                                     var mat = Matrix3x2.CreateTranslation(new Vector2(xFrom, yTo));
                                     mat = mat * currentMat;
                                     canvasArgs.DrawingSession.Transform = mat;
-                                    canvasArgs.DrawingSession.DrawCachedGeometry(_fillRoundedRectGeom, binColor);
+                                    canvasArgs.DrawingSession.DrawCachedGeometry(_fillRoundedRectGeom, dataColor);
                                     canvasArgs.DrawingSession.Transform = currentMat;
+
+                                    // draw brush rect
+                                    // draw brush rect
+                                    if (resultItem.BrushCount > 0 && resultItem.Count > 0)
+                                    {
+                                        var brushFactor = (double) resultItem.BrushCount/(double) resultItem.Count;
+                                        var ratio = (rect.Width/rect.Height);
+                                        var newHeight = Math.Sqrt((1.0/ratio)*((rect.Width*rect.Height)*brushFactor));
+                                        var newWidth = newHeight*ratio;
+
+                                        var brushRect = new Rect(rect.X + (rect.Width - newWidth)/2.0f, rect.Y + (rect.Height - newHeight)/2.0f, newWidth, newHeight);
+                                        canvasArgs.DrawingSession.FillRoundedRectangle(brushRect, 4, 4, brushColor);
+                                    }
                                 }
                                 else
                                 {
-                                    canvasArgs.DrawingSession.FillRoundedRectangle(rect, 4, 4, binColor);
+                                    // draw data rect
+                                    canvasArgs.DrawingSession.FillRoundedRectangle(rect, 4, 4, Windows.UI.Color.FromArgb(255, 40, 170, 213));
+
+                                    // draw brush rect
+                                    if (resultItem.BrushCount > 0 && resultItem.Count > 0)
+                                    {
+                                        var brushFactor = (double) resultItem.BrushCount/(double) resultItem.Count;
+                                        if (_isYAxisAggregated && _isXAxisAggregated)
+                                        {
+                                            var ratio = (rect.Width / rect.Height);
+                                            var newHeight = Math.Sqrt((1.0 / ratio) * ((rect.Width * rect.Height) * brushFactor));
+                                            var newWidth = newHeight * ratio;
+
+                                            var brushRect = new Rect(rect.X + (rect.Width - newWidth) / 2.0f, rect.Y + (rect.Height - newHeight) / 2.0f, newWidth, newHeight);
+                                            canvasArgs.DrawingSession.FillRoundedRectangle(brushRect, 4, 4, brushBaseColor);
+
+                                        }
+                                        else if (_isYAxisAggregated)
+                                        {
+                                            var brushRect = new Rect(rect.X, rect.Y + (rect.Height - rect.Height * brushFactor), rect.Width, rect.Height*brushFactor);
+                                            canvasArgs.DrawingSession.FillRoundedRectangle(brushRect, 4, 4, brushBaseColor);
+                                        }
+                                        else if (_isXAxisAggregated)
+                                        {
+                                            var brushRect = new Rect(rect.X, rect.Y, rect.Width * brushFactor, rect.Height);
+                                            canvasArgs.DrawingSession.FillRoundedRectangle(brushRect, 4, 4, brushBaseColor);
+                                        }
+                                    }
+
                                 }
 
                                 if (_isXAxisAggregated || _isYAxisAggregated)

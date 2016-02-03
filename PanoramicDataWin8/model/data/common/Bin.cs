@@ -11,12 +11,11 @@ namespace PanoramicDataWin8.model.data.common
         public Dictionary<InputOperationModel, double?> Values { get; set; }
         public Dictionary<InputOperationModel, object> TemporaryValues { get; set; }
         public Dictionary<InputOperationModel, double?> NormalizedValues { get; set; }
-        public double? NormalizedCount { get; set; }
         public List<DataRow> Samples { get; set; }
         public BinIndex BinIndex { get; set; }
         public List<Span> Spans { get; set; }
         public int Count { get; set; }
-
+        public int BrushCount { get; set; }
 
         public Bin()
         {
@@ -49,7 +48,7 @@ namespace PanoramicDataWin8.model.data.common
 
         public void Map(Bin bin)
         {
-            NormalizedCount = bin.NormalizedCount;
+            BrushCount = bin.BrushCount;
             BinIndex = bin.BinIndex;
             Spans = bin.Spans;
             Count = bin.Count;

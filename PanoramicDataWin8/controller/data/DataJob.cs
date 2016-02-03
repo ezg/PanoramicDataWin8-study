@@ -55,12 +55,10 @@ namespace PanoramicDataWin8.controller.data
             _stopWatch.Start();
 
             _isRunning = true;
-            int samplesToCheck = -1;
 
             if (QueryModel.VisualizationType == VisualizationType.table)
             {
                 _binner = null;
-                samplesToCheck = 1000;
                 _dimensions = QueryModelClone.GetUsageInputOperationModel(InputUsage.X).Concat(
                                  QueryModelClone.GetUsageInputOperationModel(InputUsage.Y)).Concat(
                                  QueryModelClone.GetUsageInputOperationModel(InputUsage.Group)).ToList();
@@ -89,7 +87,6 @@ namespace PanoramicDataWin8.controller.data
                     Dimensions = _dimensions.ToList()
                 };
             }
-            _dataProvider.NrSamplesToCheck = samplesToCheck;
             Task.Run(() => run());
 
             //ThreadPool.RunAsync(_ => run(), WorkItemPriority.Low);
@@ -111,11 +108,14 @@ namespace PanoramicDataWin8.controller.data
                 {
                     _dataProvider.StartSampling();
                 }
-                DataPage dataPage = _dataProvider.GetSampleDataRows(_sampleSize);
-                
+                int from = 0;
+                DataPage dataPage = _dataProvider.GetSampleDataRows(from, _sampleSize);
+
                 List<ResultItemModel> resultItemModels = new List<ResultItemModel>();
-                while (dataPage != null && _isRunning)
+                while (dataPage != null && _isRunning && from < _dataProvider.GetNrTotalSamples())
                 {
+                    from += _sampleSize;
+                    double progress = Math.Min(1.0, (double)from / (double)_dataProvider.GetNrTotalSamples());
                     filterDataPage(dataPage);
 
                     Stopwatch sw = new Stopwatch();
@@ -133,7 +133,7 @@ namespace PanoramicDataWin8.controller.data
                         }
                         if (_aggregator != null)
                         {
-                            _aggregator.AggregateStep(_binner.BinStructure, QueryModelClone, _dataProvider.Progress());
+                            _aggregator.AggregateStep(_binner.BinStructure, QueryModel, QueryModelClone, progress, BrushQuery);
                         }
 
                         ResultDescriptionModel resultDescriptionModel = null;
@@ -150,31 +150,14 @@ namespace PanoramicDataWin8.controller.data
                                 MaxValues = _binner.BinStructure.AggregatedMaxValues.ToDictionary(entry => entry.Key, entry => entry.Value)
                             };
 
-                            await fireUpdated(resultItemModels, _dataProvider.Progress(), resultDescriptionModel);
+                            await fireUpdated(resultItemModels, progress, resultDescriptionModel);
                         }
                     }
-                    else
-                    {
-                        var resultItems = dataPage.DataRows.Select(dr => dr as ResultItemModel).ToList();
-                        foreach (var dimension in _dimensions.Where(d => d.SortMode != SortMode.None))
-                        {
-                            if (dimension.SortMode == SortMode.Asc)
-                            {
-                                resultItems = resultItems.OrderBy(rs => (rs as DataRow).Entries[dimension.InputModel as InputFieldModel].ToString()).ToList();
-                            }
-                            if (dimension.SortMode == SortMode.Desc)
-                            {
-                                resultItems = resultItems.OrderByDescending(rs => (rs as DataRow).Entries[dimension.InputModel as InputFieldModel].ToString()).ToList();
-                            }
-                        }
-                        await fireUpdated(resultItems, _dataProvider.Progress(), null);
-                    }
-
                     if (MainViewController.Instance.MainModel.Verbose)
                     {
                         Debug.WriteLine("DataJob Iteration Time: " + sw.ElapsedMilliseconds);
                     }
-                    dataPage = _dataProvider.GetSampleDataRows(_sampleSize);
+                    dataPage = _dataProvider.GetSampleDataRows(from, _sampleSize);
 
                     if (_throttle.Ticks > 0)
                     {
@@ -208,7 +191,7 @@ namespace PanoramicDataWin8.controller.data
                 List<DataRow> filteredRows = new List<DataRow>();
                 foreach (var row in dataPage.DataRows)
                 {
-                    List<object> rowValues = createRowValues(row);
+                    List<object> rowValues = row.CreateRowValues(QueryModel);
                     var result = parsedExpression.Invoke(rowValues.ToArray());
                     if (result is bool && (bool)result)
                     {
@@ -217,17 +200,6 @@ namespace PanoramicDataWin8.controller.data
                 }
                 dataPage.DataRows = filteredRows;
             }
-        }
-
-        private List<object> createRowValues(DataRow row)
-        {
-            List<object> values = new List<object>();
-
-            foreach (var inputModel in ((SimSchemaModel)QueryModel.SchemaModel).RootOriginModel.InputModels.OfType<InputFieldModel>())
-            {
-                values.Add(row.Entries[inputModel]);
-            }
-            return values;
         }
 
         private void setVisualizationValues(List<DataRow> samples)
@@ -284,6 +256,8 @@ namespace PanoramicDataWin8.controller.data
             foreach (var bin in binStructure.Bins.Values)
             {
                 VisualizationItemResultModel itemModel = new VisualizationItemResultModel();
+                itemModel.BrushCount = bin.BrushCount;
+                itemModel.Count = bin.Count;
                 for (int d = 0; d < _dimensions.Count; d++)
                 {
                     if (!(binStructure.BinRanges[d] is AggregateBinRange))

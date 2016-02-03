@@ -30,10 +30,11 @@ namespace PanoramicDataWin8.controller.data.sim
             {
                 var queryModelClone = queryModel.Clone();
                 SimDataProvider dataProvider = ((SimOriginModel) queryModel.SchemaModel.OriginModels[0]).SimDataProvider;
+
                 DataJob dataJob = new DataJob(
                     queryModel, queryModelClone, dataProvider,
-                    TimeSpan.FromMilliseconds(MainViewController.Instance.MainModel.ThrottleInMillis), (int)MainViewController.Instance.MainModel.SampleSize, 
-                    MainViewController.Instance.MainModel.BrushQuery, MainViewController.Instance.MainModel.FilterQuery);
+                    TimeSpan.FromMilliseconds(MainViewController.Instance.MainModel.ThrottleInMillis), (int) MainViewController.Instance.MainModel.SampleSize,
+                    MainViewController.Instance.MainModel.BrushQueryModel != queryModel ? MainViewController.Instance.MainModel.BrushQuery : "", MainViewController.Instance.MainModel.FilterQuery);
 
                 ActiveJobs.Add(queryModel, dataJob);
                 dataJob.JobUpdate += simJob_JobUpdate;

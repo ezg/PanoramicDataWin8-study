@@ -472,6 +472,12 @@ namespace PanoramicDataWin8
         }
 
 
+        public void SetBrushQuery(string brushQuery)
+        {
+            _currentBrushQuery = brushQuery;
+            updateQueryTextBox(tbBrush, _currentBrushQuery);
+        }
+
         private string _currentBrushQuery = "";
         private void TbBrush_OnKeyUp(object sender, KeyRoutedEventArgs e)
         {
@@ -483,21 +489,25 @@ namespace PanoramicDataWin8
                 bool correct = parseExpression(_currentBrushQuery, errorTbBrush);
                 if (correct)
                 {
-                    MainViewController.Instance.MainModel.BrushQuery = _currentBrushQuery;
-                    fireQueryUpdate();
+                    MainViewController.Instance.SetBrushQuery(_currentBrushQuery);
                 }
             }
         }
 
         private void TbBrush_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            if (((TextBox) sender).Text.Trim() != _currentBrushQuery.Trim())
+            updateQueryTextBox(sender as TextBox, _currentBrushQuery);
+        }
+
+        private void updateQueryTextBox(TextBox tb, string currentQuery)
+        {
+            if (tb.Text.Trim() != currentQuery)
             {
-                ((TextBox)sender).Background = Application.Current.Resources.MergedDictionaries[0]["highlightBrush"] as SolidColorBrush;
+                tb.Background = Application.Current.Resources.MergedDictionaries[0]["highlightBrush"] as SolidColorBrush;
             }
             else
             {
-                ((TextBox)sender).Background = Application.Current.Resources.MergedDictionaries[0]["backgroundBrush"] as SolidColorBrush;
+                tb.Background = Application.Current.Resources.MergedDictionaries[0]["backgroundBrush"] as SolidColorBrush;
             }
         }
 
@@ -520,14 +530,7 @@ namespace PanoramicDataWin8
 
         private void TbFilter_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            if (((TextBox) sender).Text.Trim() != _currentFilterQuery.Trim())
-            {
-                ((TextBox)sender).Background = Application.Current.Resources.MergedDictionaries[0]["highlightBrush"] as SolidColorBrush;
-            }
-            else
-            {
-                ((TextBox)sender).Background = Application.Current.Resources.MergedDictionaries[0]["backgroundBrush"] as SolidColorBrush;
-            }
+            updateQueryTextBox(sender as TextBox, _currentFilterQuery);
         }
 
         private bool parseExpression(string expr, TextBlock errorTextBox)

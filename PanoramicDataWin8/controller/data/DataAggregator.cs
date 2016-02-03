@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using DynamicExpresso;
 using PanoramicDataWin8.model.data;
 using PanoramicDataWin8.model.data.common;
+using PanoramicDataWin8.model.data.sim;
 
 namespace PanoramicDataWin8.controller.data
 {
     public class DataAggregator
     {
-        public void AggregateStep(BinStructure binStructure, QueryModel queryModel, double progress)
+        public void AggregateStep(BinStructure binStructure, QueryModel queryModel, QueryModel queryModelClone, double progress, string brushQuery)
         {
             if (binStructure == null)
             {
@@ -18,41 +21,73 @@ namespace PanoramicDataWin8.controller.data
             binStructure.AggregatedMaxValues.Clear();
             binStructure.AggregatedMinValues.Clear();
 
-            var aggregates = queryModel.GetUsageInputOperationModel(InputUsage.Value).Concat(
-                             queryModel.GetUsageInputOperationModel(InputUsage.DefaultValue)).Concat(
-                             queryModel.GetUsageInputOperationModel(InputUsage.X).Where(aom => aom.AggregateFunction != AggregateFunction.None)).Concat(
-                             queryModel.GetUsageInputOperationModel(InputUsage.Y).Where(aom => aom.AggregateFunction != AggregateFunction.None)).Distinct().ToList();
+            var aggregates = queryModelClone.GetUsageInputOperationModel(InputUsage.Value).Concat(
+                             queryModelClone.GetUsageInputOperationModel(InputUsage.DefaultValue)).Concat(
+                             queryModelClone.GetUsageInputOperationModel(InputUsage.X).Where(aom => aom.AggregateFunction != AggregateFunction.None)).Concat(
+                             queryModelClone.GetUsageInputOperationModel(InputUsage.Y).Where(aom => aom.AggregateFunction != AggregateFunction.None)).Distinct().ToList();
+
+            Lambda brushParsedExpression = null;
+            if (brushQuery != "")
+            {
+                var interpreter = new Interpreter();
+                var originModel = ((SimSchemaModel)queryModel.SchemaModel).RootOriginModel;
+                List<Parameter> parameters = originModel.CreateParameters();
+                brushParsedExpression = interpreter.Parse(brushQuery, parameters.ToArray());
+            }
 
             // update aggregations and counts
             foreach (var bin in binStructure.Bins.Values)
             {
                 bin.Count += bin.Samples.Count;
                 maxCount = Math.Max(bin.Count, maxCount);
-
-                if (aggregates.Count() > 0)
+                foreach (var sample in bin.Samples)
                 {
                     foreach (var aggregator in aggregates)
                     {
-                        foreach (var sample in bin.Samples)
+                        update(bin, sample, aggregator);
+                    }
+
+                    if (brushParsedExpression != null)
+                    {
+                        var result = brushParsedExpression.Invoke(sample.CreateRowValues(queryModel).ToArray());
+                        if (result is bool && (bool) result)
                         {
-                            update(bin, sample, aggregator, queryModel, progress);
+                            bin.BrushCount++;
                         }
                     }
                 }
             }
-
-            // update max / min 
+            // interpolate if needed
             foreach (var bin in binStructure.Bins.Values)
             {
-                foreach (var aggregator in aggregates)
+                if (aggregates.Any())
+                {
+                    foreach (var aggregator in aggregates)
+                    {
+
+                        if (aggregator.AggregateFunction == AggregateFunction.Count && bin.Values.ContainsKey(aggregator) && bin.TemporaryValues.ContainsKey(aggregator))
+                        {
+                            bin.Values[aggregator] = progress < 1.0 ? (double) bin.TemporaryValues[aggregator]/progress : (double) bin.TemporaryValues[aggregator];
+                        }
+                    }
+                }
+            }
+            
+            // update max / min 
+            foreach (var aggregator in aggregates)
+            {
+                if (!binStructure.AggregatedMaxValues.ContainsKey(aggregator))
+                {
+                    binStructure.AggregatedMaxValues.Add(aggregator, double.MinValue);
+                    binStructure.AggregatedMinValues.Add(aggregator, double.MaxValue);
+                }
+                binStructure.AggregatedMaxValues[aggregator] = double.MinValue;
+                binStructure.AggregatedMinValues[aggregator] = double.MaxValue;
+
+                foreach (var bin in binStructure.Bins.Values)
                 {
                     if (bin.Values.ContainsKey(aggregator) && bin.Values[aggregator].HasValue)
                     {
-                        if (!binStructure.AggregatedMaxValues.ContainsKey(aggregator))
-                        {
-                            binStructure.AggregatedMaxValues.Add(aggregator, double.MinValue);
-                            binStructure.AggregatedMinValues.Add(aggregator, double.MaxValue);
-                        }
                         binStructure.AggregatedMaxValues[aggregator] = Math.Max(binStructure.AggregatedMaxValues[aggregator], bin.Values[aggregator].Value);
                         binStructure.AggregatedMinValues[aggregator] = Math.Min(binStructure.AggregatedMinValues[aggregator], bin.Values[aggregator].Value);
                     }
@@ -62,8 +97,7 @@ namespace PanoramicDataWin8.controller.data
             // normalized values
             foreach (var bin in binStructure.Bins.Values)
             {
-                bin.NormalizedCount = bin.Count / maxCount;
-                if (aggregates.Count() > 0)
+                if (aggregates.Any())
                 {
                     foreach (var aggregator in bin.Values.Keys)
                     {
@@ -82,7 +116,7 @@ namespace PanoramicDataWin8.controller.data
             }
         }
 
-        private void update(Bin bin, DataRow sample, InputOperationModel aggregator, QueryModel queryModel, double progress)
+        private void update(Bin bin, DataRow sample, InputOperationModel aggregator)
         {
             double? currentValue = null;
             double? sampleValue = null;
@@ -139,7 +173,7 @@ namespace PanoramicDataWin8.controller.data
                 else if (aggregator.AggregateFunction == AggregateFunction.Count)
                 {
                     currentTempValue = (double)currentTempValue + 1;
-                    currentValue = progress < 1.0 ? (double)currentTempValue / progress : (double)currentTempValue;
+                    currentValue = (double) currentTempValue;
                 }
                 else
                 {

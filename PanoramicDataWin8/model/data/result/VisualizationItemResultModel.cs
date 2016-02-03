@@ -45,5 +45,31 @@ namespace PanoramicDataWin8.model.data.result
                 this.SetProperty(ref _isSelected, value);
             }
         }
+
+        private int _count = 0;
+        public int Count
+        {
+            get
+            {
+                return _count;
+            }
+            set
+            {
+                this.SetProperty(ref _count, value);
+            }
+        }
+
+        private int _brushCount = 0;
+        public int BrushCount
+        {
+            get
+            {
+                return _brushCount;
+            }
+            set
+            {
+                this.SetProperty(ref _brushCount, value);
+            }
+        }
     }
 }

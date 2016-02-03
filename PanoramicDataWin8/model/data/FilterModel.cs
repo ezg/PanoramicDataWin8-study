@@ -126,7 +126,7 @@ namespace PanoramicDataWin8.model.data
             string val = Value.ToString();
             if (Value is string)
             {
-                val = "'" + val + "'";
+                val = "\"" + val + "\"";
             }
             string ret = " " + InputOperationModel.InputModel.Name + " "  + op + " " + val + " ";
             return ret;

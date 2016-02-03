@@ -29,7 +29,6 @@ namespace PanoramicDataWin8.controller.data.sim
     public class SimDataProvider : DataProvider
     {
         private SimOriginModel _simOriginModel = null;
-        private int _nrProcessedSamples = 0;
         private StreamReader _streamReader = null;
         private DataPage _dataPage = null;
 
@@ -143,46 +142,25 @@ namespace PanoramicDataWin8.controller.data.sim
 
         public override void StartSampling()
         {
-            _nrProcessedSamples = 0;
         }
 
-        public override DataPage GetSampleDataRows(int sampleSize)
+        public override DataPage GetSampleDataRows(int from, int sampleSize)
         {
-            if (_nrProcessedSamples < GetNrTotalSamples())
-            {
-                Stopwatch sw = new Stopwatch();
-                sw.Start();
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
 
-                List<DataRow> returnList = _dataPage.DataRows.Skip(_nrProcessedSamples).Take(sampleSize).ToList();
-                _nrProcessedSamples += sampleSize;
+            List<DataRow> returnList = _dataPage.DataRows.Skip(from).Take(sampleSize).ToList();
 
-                if (MainViewController.Instance.MainModel.Verbose)
-                {
-                    Debug.WriteLine("From File Time: " + sw.ElapsedMilliseconds);
-                }
-                return new DataPage() {DataRows = returnList };
-            }
-            else
+            if (MainViewController.Instance.MainModel.Verbose)
             {
-                return null;
+                Debug.WriteLine("From File Time: " + sw.ElapsedMilliseconds);
             }
+            return new DataPage() {DataRows = returnList };
         }
 
         public override int GetNrTotalSamples()
         {
-            if (NrSamplesToCheck == -1)
-            {
-                return _simOriginModel.DatasetConfiguration.NrOfRecords;
-            }
-            else
-            {
-                return NrSamplesToCheck;
-            }
-        }
-
-        public override double Progress()
-        {
-            return Math.Min(1.0, (double)_nrProcessedSamples / (double)GetNrTotalSamples());
+            return _simOriginModel.DatasetConfiguration.NrOfRecords;
         }
     }
 }
