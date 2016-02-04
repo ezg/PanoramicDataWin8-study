@@ -435,8 +435,7 @@ namespace PanoramicDataWin8.view.vis.render
                                     canvasArgs.DrawingSession.Transform = mat;
                                     canvasArgs.DrawingSession.DrawCachedGeometry(_fillRoundedRectGeom, dataColor);
                                     canvasArgs.DrawingSession.Transform = currentMat;
-
-                                    // draw brush rect
+                                    
                                     // draw brush rect
                                     if (resultItem.BrushCount > 0 && resultItem.Count > 0)
                                     {

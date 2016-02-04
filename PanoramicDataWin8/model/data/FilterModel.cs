@@ -126,7 +126,15 @@ namespace PanoramicDataWin8.model.data
             string val = Value.ToString();
             if (Value is string)
             {
-                val = "\"" + val + "\"";
+                if (((InputFieldModel) InputOperationModel.InputModel).InputDataType == InputDataTypeConstants.FLOAT ||
+                    ((InputFieldModel) InputOperationModel.InputModel).InputDataType == InputDataTypeConstants.INT)
+                {
+                    val = val;
+                }
+                else
+                {
+                    val = "\"" + val + "\"";
+                }
             }
             string ret = " " + InputOperationModel.InputModel.Name + " "  + op + " " + val + " ";
             return ret;

@@ -215,7 +215,19 @@ namespace PanoramicDataWin8.controller.data
 
         private double? getVisualizationValue(AxisType axisType, object value, InputOperationModel inputOperationModel, Dictionary<string, double> uniqueValues) 
         {
-            if (((InputFieldModel) inputOperationModel.InputModel).InputDataType == InputDataTypeConstants.FLOAT ||
+            if (((InputFieldModel) inputOperationModel.InputModel).InputVisualizationType == InputVisualizationTypeConstants.ENUM ||
+                ((InputFieldModel) inputOperationModel.InputModel).InputVisualizationType == InputVisualizationTypeConstants.CATEGORY)
+            {
+                if (value != null)
+                {
+                    if (!uniqueValues.ContainsKey(value.ToString()))
+                    {
+                        uniqueValues.Add(value.ToString(), uniqueValues.Count);
+                    }
+                    return uniqueValues[value.ToString()];
+                }
+            }
+            else if (((InputFieldModel) inputOperationModel.InputModel).InputDataType == InputDataTypeConstants.FLOAT ||
                 ((InputFieldModel) inputOperationModel.InputModel).InputDataType == InputDataTypeConstants.INT)
             {
                 return value == null ? null : (double?)double.Parse(value.ToString());
@@ -228,18 +240,7 @@ namespace PanoramicDataWin8.controller.data
             {
                 return value == null ? null : (double?)((DateTime)value).Ticks;
             }
-            else
-            {
-                if (value != null)
-                {
-                    if (!uniqueValues.ContainsKey(value.ToString()))
-                    {
-                        uniqueValues.Add(value.ToString(), uniqueValues.Count);
-                    }
-                    return uniqueValues[value.ToString()];
-                }
-                return null;
-            }
+            return null;
         }
 
         private List<ResultItemModel> convertBinsToResultItemModels(BinStructure binStructure)
@@ -257,7 +258,7 @@ namespace PanoramicDataWin8.controller.data
             {
                 VisualizationItemResultModel itemModel = new VisualizationItemResultModel();
                 itemModel.BrushCount = bin.BrushCount;
-                itemModel.Count = bin.Count;
+                itemModel.Count = itemModel.Count;
                 for (int d = 0; d < _dimensions.Count; d++)
                 {
                     if (!(binStructure.BinRanges[d] is AggregateBinRange))
