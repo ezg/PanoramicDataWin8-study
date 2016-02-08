@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PanoramicDataWin8-study", "PanoramicDataWin8\PanoramicDataWin8-study.csproj", "{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}"
 EndProject
@@ -21,9 +21,7 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Debug|ARM.ActiveCfg = Debug|ARM
 		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Debug|ARM.Build.0 = Debug|ARM
 		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Debug|ARM.Deploy.0 = Debug|ARM
@@ -33,9 +31,7 @@ Global
 		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Debug|x86.ActiveCfg = Debug|x86
 		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Debug|x86.Build.0 = Debug|x86
 		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Debug|x86.Deploy.0 = Debug|x86
-		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Release|Any CPU.ActiveCfg = Release|x86
 		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Release|ARM.ActiveCfg = Release|ARM
 		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Release|ARM.Build.0 = Release|ARM
 		{978BC51D-FF87-4A49-93CC-E9C70AE6F5A8}.Release|ARM.Deploy.0 = Release|ARM

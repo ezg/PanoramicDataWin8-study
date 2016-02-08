@@ -166,11 +166,7 @@ namespace PanoramicDataWin8.view.vis.render
             }
             else if (resultModel.ResultItemModels.Count == 0 && resultModel.Progress == 1.0)
             {
-                _isResultEmpty = true;
-            }
-            else
-            {
-
+                _isResultEmpty = _resultModel.ResultType != ResultType.Clear; ;
             }
         }
 
@@ -191,7 +187,7 @@ namespace PanoramicDataWin8.view.vis.render
                 _leftOffset = 10;
                 _deviceWidth = (float)(canvas.ActualWidth / CompositionScaleX - _leftOffset - _rightOffset);
                 _deviceHeight = (float)(canvas.ActualHeight / CompositionScaleY - _topOffset - _bottomtOffset);
-                DrawString(canvasArgs, _textFormat, _deviceWidth / 2.0f + _leftOffset, _deviceHeight / 2.0f + _topOffset, "no datapoints", _textColor, true, true, true);
+                DrawString(canvasArgs, _textFormat, _deviceWidth / 2.0f + _leftOffset, _deviceHeight / 2.0f + _topOffset, "no datapoints", _textColor, true, true, false);
             }
         }
 

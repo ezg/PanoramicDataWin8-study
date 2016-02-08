@@ -46,6 +46,7 @@
                 Margin="10,0,10,0">
                 <TextBox 
                     Header="filter"
+                    IsSpellCheckEnabled="False"
                     AcceptsReturn="False" PlaceholderText="filter" Height="60"
                     BorderThickness="1"
                     Style="{StaticResource filterTextBoxStyle}" Background="{StaticResource backgroundBrush}"
@@ -63,6 +64,7 @@
                 Margin="10,0,10,0">
                 <TextBox 
                     Header="brush"
+                    IsSpellCheckEnabled="False"
                     AcceptsReturn="False" PlaceholderText="brush" Height="60"
                     BorderThickness="1"
                     Style="{StaticResource filterTextBoxStyle}" Background="{StaticResource backgroundBrush}"

@@ -35,8 +35,9 @@ namespace PanoramicDataWin8.model.data.result
             }
         }
 
-        public void FireResultModelUpdated()
+        public void FireResultModelUpdated(ResultType resultType)
         {
+            _resultType = resultType;
             if (ResultModelUpdated != null)
             {
                 ResultModelUpdated(this, new EventArgs());
@@ -56,5 +57,21 @@ namespace PanoramicDataWin8.model.data.result
                 this.SetProperty(ref _progress, value);
             }
         }
+
+
+        private ResultType _resultType = ResultType.Clear;
+        public ResultType ResultType
+        {
+            get
+            {
+                return _resultType;
+            }
+            set
+            {
+                this.SetProperty(ref _resultType, value);
+            }
+        }
     }
+
+    public enum ResultType { Clear, Update, Complete }
 }

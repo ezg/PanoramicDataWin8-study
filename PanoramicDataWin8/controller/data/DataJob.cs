@@ -258,7 +258,7 @@ namespace PanoramicDataWin8.controller.data
             {
                 VisualizationItemResultModel itemModel = new VisualizationItemResultModel();
                 itemModel.BrushCount = bin.BrushCount;
-                itemModel.Count = itemModel.Count;
+                itemModel.Count = bin.Count;
                 for (int d = 0; d < _dimensions.Count; d++)
                 {
                     if (!(binStructure.BinRanges[d] is AggregateBinRange))

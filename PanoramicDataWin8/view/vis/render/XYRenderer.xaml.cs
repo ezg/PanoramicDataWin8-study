@@ -34,9 +34,7 @@ namespace PanoramicDataWin8.view.vis.render
 
         public delegate void LoadResultItemModelsHandler(ResultModel resultModel);
         public event LoadResultItemModelsHandler LoadResultItemModels;
-
-        private MenuViewModel _menuViewModel = null;
-        private MenuView _menuView = null;
+        
         private VisualizationViewModel _visualizationViewModel = null;
 
         public XYRenderer()
@@ -49,7 +47,6 @@ namespace PanoramicDataWin8.view.vis.render
 
         public void Dispose()
         {
-            removeMenu();
             InputFieldView.InputFieldViewModelTapped -= InputFieldViewInputFieldViewModelTapped;
             DataContextChanged -= PlotRenderer_DataContextChanged;
             removeEventHandlers();
@@ -124,13 +121,12 @@ namespace PanoramicDataWin8.view.vis.render
             if (e.PropertyName == model.GetPropertyName(() => model.Size) ||
                 e.PropertyName == model.GetPropertyName(() => model.Position))
             {
-                setMenuViewModelAnkerPosition();
+                //setMenuViewModelAnkerPosition();
             }
         }
 
         private void populateHeaders()
         {
-            removeMenu();
             VisualizationViewModel visModel = (DataContext as VisualizationViewModel);
             QueryModel queryModel = visModel.QueryModel;
             if (queryModel.GetUsageInputOperationModel(InputUsage.X).Any())
@@ -317,26 +313,7 @@ namespace PanoramicDataWin8.view.vis.render
                 Render(sizeChanged);
             }
         }
-
-
-        void removeMenu()
-        {
-            if (_menuViewModel != null)
-            {
-                InputFieldView inputFieldView = this.GetDescendantsOfType<InputFieldView>().Where(av => av.DataContext == _menuViewModel.InputFieldViewModel).FirstOrDefault();
-                if (inputFieldView != null)
-                {
-                    Rct bounds = inputFieldView.GetBounds(MainViewController.Instance.InkableScene);
-                    foreach (var menuItem in _menuViewModel.MenuItemViewModels)
-                    {
-                        menuItem.TargetPosition = bounds.TopLeft;
-                    }
-                    _menuViewModel.IsToBeRemoved = true;
-                    _menuViewModel.IsDisplayed = false;
-                }
-            }
-        }
-
+        
         void InputFieldViewInputFieldViewModelTapped(object sender, EventArgs e)
         {
             InputFieldViewModel model = (sender as InputFieldView).DataContext as InputFieldViewModel;
@@ -344,60 +321,31 @@ namespace PanoramicDataWin8.view.vis.render
             if (DataContext == visModel)
             {
                 visModel.ActiveStopwatch.Restart();
-
-                //if (HeaderObjects.Any(ho => ho.InputFieldViewModel == model))
+                if (model.InputOperationModel.AggregateFunction == AggregateFunction.None)
                 {
-                    bool createNew = true;
-                    if (_menuViewModel != null && !_menuViewModel.IsToBeRemoved)
-                    {
-                        createNew = _menuViewModel.InputFieldViewModel != model;
-                        removeMenu();
-                    }
-
-                    if (createNew)
-                    {
-                        InputFieldView inputFieldView = sender as InputFieldView;
-                        var menuViewModel = model.CreateMenuViewModel(inputFieldView.GetBounds(MainViewController.Instance.InkableScene));
-                        if (menuViewModel.MenuItemViewModels.Count > 0)
-                        {
-                            _menuViewModel = menuViewModel;
-                            _menuView = new MenuView()
-                            {
-                                DataContext = _menuViewModel
-                            };
-                            setMenuViewModelAnkerPosition();
-                            MainViewController.Instance.InkableScene.Add(_menuView);
-                            _menuViewModel.IsDisplayed = true;
-                        }
-                    }
+                    model.InputOperationModel.AggregateFunction = AggregateFunction.Count;
                 }
-            }
-        }
-
-        private void setMenuViewModelAnkerPosition()
-        {
-            if (_menuViewModel != null)
-            {
-                InputFieldView inputFieldView = this.GetDescendantsOfType<InputFieldView>().Where(av => av.DataContext == _menuViewModel.InputFieldViewModel).FirstOrDefault();
-
-                if (inputFieldView != null)
+                else if (model.InputOperationModel.AggregateFunction == AggregateFunction.Count)
                 {
-                    if (_menuViewModel.IsToBeRemoved)
+                    if (((InputFieldModel) model.InputOperationModel.InputModel).InputDataType == InputDataTypeConstants.INT ||
+                        ((InputFieldModel) model.InputOperationModel.InputModel).InputDataType == InputDataTypeConstants.FLOAT ||
+                        ((InputFieldModel) model.InputOperationModel.InputModel).InputDataType == InputDataTypeConstants.DATE ||
+                        ((InputFieldModel) model.InputOperationModel.InputModel).InputDataType == InputDataTypeConstants.TIME)
                     {
-                        Rct bounds = inputFieldView.GetBounds(MainViewController.Instance.InkableScene);
-                        foreach (var menuItem in _menuViewModel.MenuItemViewModels)
-                        {
-                            menuItem.TargetPosition = bounds.TopLeft;
-                        }
+                        model.InputOperationModel.AggregateFunction = AggregateFunction.Avg;
                     }
                     else
                     {
-                        Rct bounds = inputFieldView.GetBounds(MainViewController.Instance.InkableScene);
-                        _menuViewModel.AnkerPosition = bounds.TopLeft;
+                        model.InputOperationModel.AggregateFunction = AggregateFunction.None;
                     }
+                }
+                else if (model.InputOperationModel.AggregateFunction == AggregateFunction.Avg)
+                {
+                    model.InputOperationModel.AggregateFunction = AggregateFunction.None;
                 }
             }
         }
+        
         
         void FilterModels_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
@@ -507,12 +455,11 @@ namespace PanoramicDataWin8.view.vis.render
             }
             QueryModel qModel = (DataContext as VisualizationViewModel).QueryModel;
 
-            // if both are empty before hand add default value
+            // if both are empty beforehand add default value
             if (!qModel.GetUsageInputOperationModel(InputUsage.X).Any() && !qModel.GetUsageInputOperationModel(InputUsage.Y).Any())
             {
                 InputOperationModel value = new InputOperationModel(e.InputOperationModel.InputModel);
                 value.AggregateFunction = AggregateFunction.Count;
-
                 qModel.AddUsageInputOperationModel(InputUsage.DefaultValue, value);
             }
 
@@ -524,6 +471,7 @@ namespace PanoramicDataWin8.view.vis.render
                     qModel.RemoveUsageInputOperationModel(InputUsage.X, qModel.GetUsageInputOperationModel(InputUsage.X).First());
                 }
                 qModel.AddUsageInputOperationModel(InputUsage.X, e.InputOperationModel);
+                return;
             }
 
             var yBounds = yInputFieldView.GetBounds(MainViewController.Instance.InkableScene).GetPolygon();
@@ -534,6 +482,21 @@ namespace PanoramicDataWin8.view.vis.render
                     qModel.RemoveUsageInputOperationModel(InputUsage.Y, qModel.GetUsageInputOperationModel(InputUsage.Y).First());
                 }
                 qModel.AddUsageInputOperationModel(InputUsage.Y, e.InputOperationModel);
+                return;
+            }
+
+
+            // if both are empty beforehand add default value
+            if (!qModel.GetUsageInputOperationModel(InputUsage.X).Any() && !qModel.GetUsageInputOperationModel(InputUsage.Y).Any())
+            {
+                InputOperationModel value = new InputOperationModel(e.InputOperationModel.InputModel);
+                value.AggregateFunction = AggregateFunction.Count;
+                qModel.AddUsageInputOperationModel(InputUsage.Y, value);
+
+                value = new InputOperationModel(e.InputOperationModel.InputModel);
+                value.AggregateFunction = AggregateFunction.None;
+                qModel.AddUsageInputOperationModel(InputUsage.X, value);
+                return;
             }
         }
     }
