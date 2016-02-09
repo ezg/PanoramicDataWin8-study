@@ -151,11 +151,6 @@ namespace PanoramicDataWin8.controller.data.sim
             sw.Start();
 
             List<DataRow> returnList = _dataPage.DataRows.Skip(from).Take(sampleSize).ToList();
-
-            if (MainViewController.Instance.MainModel.Verbose)
-            {
-                Debug.WriteLine("From File Time: " + sw.ElapsedMilliseconds);
-            }
             return new DataPage() {DataRows = returnList };
         }
 

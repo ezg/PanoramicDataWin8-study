@@ -102,6 +102,7 @@
     <Compile Include="controller\data\DataRow.cs" />
     <Compile Include="controller\data\Job.cs" />
     <Compile Include="controller\data\ErrorHandler.cs" />
+    <Compile Include="controller\data\Logger.cs" />
     <Compile Include="controller\data\StatisticsHelper.cs" />
     <Compile Include="controller\data\virt\AsyncVirtualizedCollection.cs" />
     <Compile Include="controller\data\virt\DataPage.cs" />

@@ -257,14 +257,18 @@ namespace PanoramicDataWin8.view.vis.render
                 Storyboard.SetTargetProperty(animation, "Opacity");
                 storyboard.Begin();*/
 
-                var contentGrid = (Grid)GetTemplateChild("contentGrid");
-                var mainLabel = (TextBlock)GetTemplateChild("mainLabel");
-                
+                var contentGrid = (Grid) GetTemplateChild("contentGrid");
+                var mainLabel = (TextBlock) GetTemplateChild("mainLabel");
+
                 contentGrid.Opacity = 1;
                 mainLabel.Opacity = 0;
 
-                loadResultItemModels(resultModel);
-                render();
+                if (resultModel.ResultItemModels.Count > 0 || resultModel.Progress == 1.0 || resultModel.ResultType == ResultType.Complete)
+                {
+                    loadResultItemModels(resultModel);
+                    render();
+                }
+                   
             }
             /*else
             {

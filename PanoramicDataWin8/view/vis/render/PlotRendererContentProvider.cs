@@ -48,6 +48,7 @@ namespace PanoramicDataWin8.view.vis.render
         private ResultModel _resultModel = null;
         private VisualizationResultDescriptionModel _visualizationDescriptionModel = null;
 
+        private QueryModel _queryModelClone = null;
         private QueryModel _queryModel = null;
         private List<FilterModel> _filterModels = new List<FilterModel>();
         private Dictionary<FilterModel, Rect> _filterModelRects = new Dictionary<FilterModel, Rect>();
@@ -79,9 +80,10 @@ namespace PanoramicDataWin8.view.vis.render
             _filterModels = filterModels;
         }
 
-        public void UpdateData(ResultModel resultModel, QueryModel queryModel, InputOperationModel xAom, InputOperationModel yAom)
+        public void UpdateData(ResultModel resultModel, QueryModel queryModel, QueryModel queryModelClone, InputOperationModel xAom, InputOperationModel yAom)
         {
             _resultModel = resultModel;
+            _queryModelClone = queryModelClone;
             _queryModel = queryModel;
             _xAom = xAom;
             _yAom = yAom;
@@ -349,19 +351,19 @@ namespace PanoramicDataWin8.view.vis.render
                     {
                         foreach (var resultItem in _binDictonary[binIndex])
                         {
-                            double? xValue = (double?)resultItem.Values[_queryModel.GetUsageInputOperationModel(InputUsage.X).First()].Value;
-                            double? yValue = (double?)resultItem.Values[_queryModel.GetUsageInputOperationModel(InputUsage.Y).First()].Value;
+                            double? xValue = (double?)resultItem.Values[_queryModelClone.GetUsageInputOperationModel(InputUsage.X).First()].Value;
+                            double? yValue = (double?)resultItem.Values[_queryModelClone.GetUsageInputOperationModel(InputUsage.Y).First()].Value;
                             double? value = null;
                             double? unNormalizedvalue = null;
-                            if (_queryModel.GetUsageInputOperationModel(InputUsage.Value).Any() && resultItem.Values.ContainsKey(_queryModel.GetUsageInputOperationModel(InputUsage.Value).First()))
+                            if (_queryModelClone.GetUsageInputOperationModel(InputUsage.Value).Any() && resultItem.Values.ContainsKey(_queryModelClone.GetUsageInputOperationModel(InputUsage.Value).First()))
                             {
-                                unNormalizedvalue = (double?)resultItem.Values[_queryModel.GetUsageInputOperationModel(InputUsage.Value).First()].Value;
-                                value = (double?)resultItem.Values[_queryModel.GetUsageInputOperationModel(InputUsage.Value).First()].NoramlizedValue;
+                                unNormalizedvalue = (double?)resultItem.Values[_queryModelClone.GetUsageInputOperationModel(InputUsage.Value).First()].Value;
+                                value = (double?)resultItem.Values[_queryModelClone.GetUsageInputOperationModel(InputUsage.Value).First()].NoramlizedValue;
                             }
-                            else if (_queryModel.GetUsageInputOperationModel(InputUsage.DefaultValue).Any() && resultItem.Values.ContainsKey(_queryModel.GetUsageInputOperationModel(InputUsage.DefaultValue).First()))
+                            else if (_queryModelClone.GetUsageInputOperationModel(InputUsage.DefaultValue).Any() && resultItem.Values.ContainsKey(_queryModelClone.GetUsageInputOperationModel(InputUsage.DefaultValue).First()))
                             {
-                                unNormalizedvalue = (double?)resultItem.Values[_queryModel.GetUsageInputOperationModel(InputUsage.DefaultValue).First()].Value;
-                                value = (double?)resultItem.Values[_queryModel.GetUsageInputOperationModel(InputUsage.DefaultValue).First()].NoramlizedValue;
+                                unNormalizedvalue = (double?)resultItem.Values[_queryModelClone.GetUsageInputOperationModel(InputUsage.DefaultValue).First()].Value;
+                                value = (double?)resultItem.Values[_queryModelClone.GetUsageInputOperationModel(InputUsage.DefaultValue).First()].NoramlizedValue;
                             }
 
                             if (value != null)
@@ -433,7 +435,7 @@ namespace PanoramicDataWin8.view.vis.render
                                     canvasArgs.DrawingSession.Transform = currentMat;
                                     
                                     // draw brush rect
-                                    if (resultItem.BrushCount > 0 && resultItem.Count > 0)
+                                    if (resultItem.BrushCount > 0 && resultItem.Count > 0 && MainViewController.Instance.MainModel.BrushQueryModel != _queryModel)
                                     {
                                         var brushFactor = (double) resultItem.BrushCount/(double) resultItem.Count;
                                         var ratio = (rect.Width/rect.Height);
@@ -448,9 +450,12 @@ namespace PanoramicDataWin8.view.vis.render
                                 {
                                     // draw data rect
                                     canvasArgs.DrawingSession.FillRoundedRectangle(rect, 4, 4, Windows.UI.Color.FromArgb(255, 40, 170, 213));
-
+                                    if (MainViewController.Instance.MainModel.BrushQueryModel == _queryModelClone)
+                                    {
+                                        
+                                    }
                                     // draw brush rect
-                                    if (resultItem.BrushCount > 0 && resultItem.Count > 0)
+                                    if (resultItem.BrushCount > 0 && resultItem.Count > 0 && MainViewController.Instance.MainModel.BrushQueryModel != _queryModel)
                                     {
                                         var brushFactor = (double) resultItem.BrushCount/(double) resultItem.Count;
                                         if (_isYAxisAggregated && _isXAxisAggregated)
@@ -545,13 +550,13 @@ namespace PanoramicDataWin8.view.vis.render
                         {
                             foreach (var resultItem in _binDictonary[binIndex])
                             {
-                                if (_queryModel.GetUsageInputOperationModel(InputUsage.Value).Any() && resultItem.Values.ContainsKey(_queryModel.GetUsageInputOperationModel(InputUsage.Value).First()))
+                                if (_queryModelClone.GetUsageInputOperationModel(InputUsage.Value).Any() && resultItem.Values.ContainsKey(_queryModelClone.GetUsageInputOperationModel(InputUsage.Value).First()))
                                 {
-                                    unNormalizedvalue = (double?)resultItem.Values[_queryModel.GetUsageInputOperationModel(InputUsage.Value).First()].Value;
+                                    unNormalizedvalue = (double?)resultItem.Values[_queryModelClone.GetUsageInputOperationModel(InputUsage.Value).First()].Value;
                                 }
-                                else if (_queryModel.GetUsageInputOperationModel(InputUsage.DefaultValue).Any() && resultItem.Values.ContainsKey(_queryModel.GetUsageInputOperationModel(InputUsage.DefaultValue).First()))
+                                else if (_queryModelClone.GetUsageInputOperationModel(InputUsage.DefaultValue).Any() && resultItem.Values.ContainsKey(_queryModelClone.GetUsageInputOperationModel(InputUsage.DefaultValue).First()))
                                 {
-                                    unNormalizedvalue = (double?)resultItem.Values[_queryModel.GetUsageInputOperationModel(InputUsage.DefaultValue).First()].Value;
+                                    unNormalizedvalue = (double?)resultItem.Values[_queryModelClone.GetUsageInputOperationModel(InputUsage.DefaultValue).First()].Value;
                                 }
                             }
                         }

@@ -93,8 +93,20 @@ namespace PanoramicDataWin8.controller.data
             for (int d = 0; d < Dimensions.Count; d++)
             {
                 var dimension = Dimensions[d];
-                var dataMin = dataRows.Select(dp => dp.VisualizationValues[dimension]).Where(dp => dp.HasValue).Min(dp => dp.Value);
-                var dataMax = dataRows.Select(dp => dp.VisualizationValues[dimension]).Where(dp => dp.HasValue).Max(dp => dp.Value);
+
+                var agg = dataRows.Select(dp => dp.VisualizationValues[dimension]).Where(dp => dp.HasValue).Aggregate(
+                    new
+                    {
+                        Min = double.MaxValue,
+                        Max = double.MinValue
+                    },
+                    (accumulator, o) => new {
+                        Min = Math.Min(o.Value, accumulator.Min),
+                        Max = Math.Max(o.Value, accumulator.Max)
+                    });
+
+                var dataMin = agg.Min;
+                var dataMax = agg.Max;
 
                 if (dataMax == dataMin)
                 {

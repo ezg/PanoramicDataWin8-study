@@ -204,6 +204,11 @@ namespace PanoramicDataWin8.controller.view
                 }
                 SetBrushQuery(brushQueryModel);
             }
+            else if (e.QueryModelUpdatedEventType == QueryModelUpdatedEventType.Structure &&
+                     MainModel.BrushQueryModel == sender)
+            {
+                SetBrushQuery(MainModel.BrushQueryModel);
+            }
         }
 
         public void SetBrushQuery(QueryModel queryModel)
@@ -218,6 +223,10 @@ namespace PanoramicDataWin8.controller.view
                 if (visualizationViewModel.QueryModel != queryModel)
                 {
                     visualizationViewModel.QueryModel.ClearFilterModels();
+                }
+                else
+                {
+                    visualizationViewModel.FireRequestRender();
                 }
             }
         }

@@ -72,6 +72,19 @@ namespace PanoramicDataWin8.view.vis.render
             if (args.NewValue != null)
             {
                 (DataContext as VisualizationViewModel).QueryModel.QueryModelUpdated += QueryModel_QueryModelUpdated;
+                (DataContext as VisualizationViewModel).RequestRender += PlotRenderer_RequestRender;
+            }
+        }
+
+        private void PlotRenderer_RequestRender(object sender, EventArgs e)
+        {
+            if (DataContext != null && (DataContext as VisualizationViewModel).QueryModel.ResultModel != null)
+            {
+                var resultModel = (DataContext as VisualizationViewModel).QueryModel.ResultModel;
+                if (resultModel.ResultItemModels.Count > 0 || resultModel.Progress == 1.0 || resultModel.ResultType == ResultType.Complete)
+                {
+                    render();
+                }
             }
         }
 
@@ -80,7 +93,7 @@ namespace PanoramicDataWin8.view.vis.render
             if (e.QueryModelUpdatedEventType == QueryModelUpdatedEventType.FilterModels || e.QueryModelUpdatedEventType == QueryModelUpdatedEventType.ClearFilterModels)
             {
                 _plotRendererContentProvider.UpdateFilterModels((sender as QueryModel).FilterModels.ToList());
-                render();
+              //  render();
             }
         }
 
@@ -88,6 +101,7 @@ namespace PanoramicDataWin8.view.vis.render
         {
             VisualizationViewModel model = (DataContext as VisualizationViewModel);
             _plotRendererContentProvider.UpdateData(resultModel,
+                model.QueryModel,
                 model.QueryModel.Clone(),
                 model.QueryModel.GetUsageInputOperationModel(InputUsage.X).FirstOrDefault(),
                 model.QueryModel.GetUsageInputOperationModel(InputUsage.Y).FirstOrDefault());

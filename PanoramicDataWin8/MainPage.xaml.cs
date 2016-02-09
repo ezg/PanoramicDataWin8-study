@@ -434,7 +434,8 @@ namespace PanoramicDataWin8
                 {
                     Dataset = MainViewController.Instance.MainModel.Dataset,
                     Mode = MainViewController.Instance.MainModel.Mode,
-                    Seed = MainViewController.Instance.MainModel.Seed
+                    Seed = MainViewController.Instance.MainModel.Seed, 
+                    Participant = MainViewController.Instance.MainModel.Participant
                 });
 
 
@@ -447,6 +448,7 @@ namespace PanoramicDataWin8
                 MainViewController.Instance.MainModel.Dataset = signInDialog.Settings.Dataset;
                 MainViewController.Instance.MainModel.Seed = signInDialog.Settings.Seed;
                 MainViewController.Instance.MainModel.Mode = signInDialog.Settings.Mode;
+                MainViewController.Instance.MainModel.Participant = signInDialog.Settings.Participant;
 
                 if (MainViewController.Instance.MainModel.Dataset == Dataset.ds1)
                 {

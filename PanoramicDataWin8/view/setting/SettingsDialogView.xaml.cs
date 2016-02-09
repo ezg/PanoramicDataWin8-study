@@ -23,12 +23,13 @@ namespace PanoramicDataWin8.view.setting
         public Mode Mode { get; set; }
         public Dataset Dataset { get; set; }
         public int Seed { get; set; }
+        public string Participant { get; set; }
 
         public Settings() { }
 
         public Settings Clone()
         {
-            return new Settings() {Dataset = this.Dataset, Mode = this.Mode, Seed = this.Seed};
+            return new Settings() {Dataset = this.Dataset, Mode = this.Mode, Seed = this.Seed, Participant = this.Participant};
         }
     }
 
@@ -85,6 +86,7 @@ namespace PanoramicDataWin8.view.setting
             }
 
             sliderSeed.Value = Settings.Seed;
+            textBoxParticipant.Text = Settings.Participant;
         }
 
         private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -103,7 +105,7 @@ namespace PanoramicDataWin8.view.setting
             Settings.Seed = (int)sliderSeed.Value;
             Settings.Mode = rbBatch.IsChecked.Value ? Mode.batch : rbInstantaneous.IsChecked.Value ? Mode.instantaneous : Mode.progressive;
             Settings.Dataset = rbDs1.IsChecked.Value ? Dataset.ds1 : rbDs2.IsChecked.Value ? Dataset.ds2 : rbDs3.IsChecked.Value ? Dataset.ds3 : Dataset.ds4;
-
+            Settings.Participant = textBoxParticipant.Text.Trim();
             deferral.Complete();
         }
 

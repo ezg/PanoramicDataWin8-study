@@ -15,6 +15,7 @@ namespace PanoramicDataWin8.controller.data.sim
         public override void ExecuteQuery(QueryModel queryModel)
         {
             queryModel.ResultModel.ResultItemModels = new ObservableCollection<ResultItemModel>();
+            queryModel.ResultModel.Progress = 0.0;
             queryModel.ResultModel.FireResultModelUpdated(ResultType.Clear);
 
             if (ActiveJobs.ContainsKey(queryModel))

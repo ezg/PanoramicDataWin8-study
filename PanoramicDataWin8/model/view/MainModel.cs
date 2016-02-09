@@ -123,7 +123,7 @@ namespace PanoramicDataWin8.model.view
             }
         }
 
-        private bool _verbose = false;
+        private bool _verbose = true;
         public bool Verbose
         {
             get
@@ -174,7 +174,7 @@ namespace PanoramicDataWin8.model.view
             }
         }
 
-        private Mode _mode = Mode.batch;
+        private Mode _mode = Mode.instantaneous;
         public Mode Mode
         {
             get
@@ -188,7 +188,7 @@ namespace PanoramicDataWin8.model.view
         }
 
 
-        private Dataset _dataset = Dataset.ds1;
+        private Dataset _dataset = Dataset.ds4;
         public Dataset Dataset
         {
             get
@@ -227,6 +227,20 @@ namespace PanoramicDataWin8.model.view
                 this.SetProperty(ref _brushQueryModel, value);
             }
         }
+
+        private string _participant = "PT";
+        public string Participant
+        {
+            get
+            {
+                return _participant;
+            }
+            set
+            {
+                this.SetProperty(ref _participant, value);
+            }
+        }
+
 
 
         private string _brushQuery = "";

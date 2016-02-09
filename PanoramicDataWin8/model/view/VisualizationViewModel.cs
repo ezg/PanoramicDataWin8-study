@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using Windows.UI;
@@ -11,6 +12,10 @@ namespace PanoramicDataWin8.model.view
 {
     public class VisualizationViewModel : ExtendedBindableBase
     {
+        public delegate void RequestRenderHandler(object sender, EventArgs e);
+        public event RequestRenderHandler RequestRender;
+
+
         public static double WIDTH = 300;
         public static double HEIGHT = 300;
 
@@ -51,6 +56,14 @@ namespace PanoramicDataWin8.model.view
                 ResultDescriptionModel = new VisualizationResultDescriptionModel()
             });
             selectColor();
+        }
+
+        public void FireRequestRender()
+        {
+            if (RequestRender != null)
+            {
+                RequestRender(this, new EventArgs());
+            }
         }
 
         private Stopwatch _activeStopwatch = new Stopwatch();

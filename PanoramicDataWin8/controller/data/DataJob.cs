@@ -106,6 +106,9 @@ namespace PanoramicDataWin8.controller.data
                     _dataProvider.StartSampling();
                 }
 
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+
                 int sampleSize = 0;
                 TimeSpan throttle = TimeSpan.FromMilliseconds(0);
                 if (MainViewController.Instance.MainModel.Mode == Mode.instantaneous)
@@ -136,8 +139,6 @@ namespace PanoramicDataWin8.controller.data
                     double progress = Math.Min(1.0, (double)from / (double)_dataProvider.GetNrTotalSamples());
                     filterDataPage(dataPage);
 
-                    Stopwatch sw = new Stopwatch();
-                    sw.Start();
                     if (QueryModelClone.VisualizationType != VisualizationType.table)
                     {
                         if (!_isIncremental)
@@ -171,10 +172,7 @@ namespace PanoramicDataWin8.controller.data
                             await fireUpdated(resultItemModels, progress, resultDescriptionModel);
                         }
                     }
-                    if (MainViewController.Instance.MainModel.Verbose)
-                    {
-                        Debug.WriteLine("DataJob Iteration Time: " + sw.ElapsedMilliseconds);
-                    }
+                    
                     dataPage = _dataProvider.GetSampleDataRows(from, sampleSize);
                 }
 
@@ -185,6 +183,10 @@ namespace PanoramicDataWin8.controller.data
                 lock (_lock)
                 {
                     _isRunning = false;
+                }
+                if (MainViewController.Instance.MainModel.Verbose)
+                {
+                    Debug.WriteLine("DataJob Time: " + sw.ElapsedMilliseconds);
                 }
             }
             catch (Exception exc)
@@ -233,25 +235,26 @@ namespace PanoramicDataWin8.controller.data
             {
                 if (value != null)
                 {
-                    if (!uniqueValues.ContainsKey(value.ToString()))
+                    var valueAsString = value.ToString();
+                    if (!uniqueValues.ContainsKey(valueAsString))
                     {
-                        uniqueValues.Add(value.ToString(), uniqueValues.Count);
+                        uniqueValues.Add(valueAsString, uniqueValues.Count);
                     }
-                    return uniqueValues[value.ToString()];
+                    return uniqueValues[valueAsString];
                 }
             }
             else if (((InputFieldModel) inputOperationModel.InputModel).InputDataType == InputDataTypeConstants.FLOAT ||
-                ((InputFieldModel) inputOperationModel.InputModel).InputDataType == InputDataTypeConstants.INT)
+                     ((InputFieldModel) inputOperationModel.InputModel).InputDataType == InputDataTypeConstants.INT)
             {
-                return value == null ? null : (double?)double.Parse(value.ToString());
+                return value == null ? null : (double?) value;
             }
-            else if (((InputFieldModel)inputOperationModel.InputModel).InputDataType == InputDataTypeConstants.TIME)
+            else if (((InputFieldModel) inputOperationModel.InputModel).InputDataType == InputDataTypeConstants.TIME)
             {
-                return value == null ? null : (double?)((DateTime)value).TimeOfDay.Ticks;
+                return value == null ? null : (double?) ((DateTime) value).TimeOfDay.Ticks;
             }
-            else if (((InputFieldModel)inputOperationModel.InputModel).InputDataType == InputDataTypeConstants.DATE)
+            else if (((InputFieldModel) inputOperationModel.InputModel).InputDataType == InputDataTypeConstants.DATE)
             {
-                return value == null ? null : (double?)((DateTime)value).Ticks;
+                return value == null ? null : (double?) ((DateTime) value).Ticks;
             }
             return null;
         }
