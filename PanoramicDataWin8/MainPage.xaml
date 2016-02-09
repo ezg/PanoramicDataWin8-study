@@ -7,7 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:inq="using:PanoramicDataWin8.view.inq"
-    FontFamily="{StaticResource abel}"
+    FontFamily="Assets/font/Abel-Regular.ttf#Abel"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -52,6 +52,7 @@
                     Style="{StaticResource filterTextBoxStyle}" Background="{StaticResource backgroundBrush}"
                     SelectionHighlightColor="{StaticResource highlightBrush}"
                     Name="tbFilter"
+                    FontFamily="Assets/font/Abel-Regular.ttf#Abel"
                     TextChanged="TbFilter_OnTextChanged"
                     KeyUp="TbFilter_OnKeyUp"/>
                 <TextBlock Name="errorTbFilter" Text="" FontSize="12" Foreground="DarkRed"></TextBlock>
@@ -70,6 +71,7 @@
                     Style="{StaticResource filterTextBoxStyle}" Background="{StaticResource backgroundBrush}"
                     SelectionHighlightColor="{StaticResource highlightBrush}"
                     Name="tbBrush"
+                    FontFamily="Assets/font/Abel-Regular.ttf#Abel"
                     TextChanged="TbBrush_OnTextChanged"
                     KeyUp="TbBrush_OnKeyUp"/>
                 <TextBlock Name="errorTbBrush" Text="" FontSize="12" Foreground="DarkRed"></TextBlock>

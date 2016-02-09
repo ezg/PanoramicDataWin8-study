@@ -20,10 +20,10 @@
         <RadioButton Content="progressive" GroupName="mode" Name="rbProgressive"/>
 
         <TextBlock Text="dataset" Margin="0,10,0,0"/>
-        <RadioButton Content="ds1" GroupName="dataset" Name="rbDs1"/>
-        <RadioButton Content="ds2" GroupName="dataset" Name="rbDs2"/>
-        <RadioButton Content="ds3" GroupName="dataset" Name="rbDs3"/>
-        <RadioButton Content="ds4" GroupName="dataset" Name="rbDs4"/>
+        <RadioButton Content="ds1 (cars)" GroupName="dataset" Name="rbDs1"/>
+        <RadioButton Content="ds2 (flights)" GroupName="dataset" Name="rbDs2"/>
+        <RadioButton Content="ds3 (census)" GroupName="dataset" Name="rbDs3"/>
+        <RadioButton Content="ds4 (titanic)" GroupName="dataset" Name="rbDs4"/>
 
         <Slider Margin="0,10,0,0" Name="sliderSeed"
             Header="seed" Minimum="0" Maximum="9" ></Slider>
