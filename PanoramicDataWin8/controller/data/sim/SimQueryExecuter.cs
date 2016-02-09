@@ -33,7 +33,6 @@ namespace PanoramicDataWin8.controller.data.sim
 
                 DataJob dataJob = new DataJob(
                     queryModel, queryModelClone, dataProvider,
-                    TimeSpan.FromMilliseconds(MainViewController.Instance.MainModel.ThrottleInMillis), (int) MainViewController.Instance.MainModel.SampleSize,
                     MainViewController.Instance.MainModel.BrushQueryModel != queryModel ? MainViewController.Instance.MainModel.BrushQuery : "", MainViewController.Instance.MainModel.FilterQuery);
 
                 ActiveJobs.Add(queryModel, dataJob);

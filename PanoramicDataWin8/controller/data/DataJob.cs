@@ -13,6 +13,7 @@ using PanoramicDataWin8.model.data;
 using PanoramicDataWin8.model.data.common;
 using PanoramicDataWin8.model.data.result;
 using PanoramicDataWin8.model.data.sim;
+using PanoramicDataWin8.model.view;
 
 namespace PanoramicDataWin8.controller.data
 {
@@ -20,9 +21,7 @@ namespace PanoramicDataWin8.controller.data
     {
         private DataProvider _dataProvider = null;
         private bool _isRunning = false;
-        private int _sampleSize = 0;
         private bool _isIncremental = false;
-        private TimeSpan _throttle = TimeSpan.FromMilliseconds(0);
         private DataBinner _binner = null;
         private DataAggregator _aggregator = new DataAggregator();
         private Object _lock = new Object();
@@ -37,7 +36,7 @@ namespace PanoramicDataWin8.controller.data
         public string BrushQuery { get; set; }
         public string FilterQuery { get; set; }
 
-        public DataJob(QueryModel queryModel, QueryModel queryModelClone, DataProvider dataProvider, TimeSpan throttle, int sampleSize, string brushQuery, string filterQuery)
+        public DataJob(QueryModel queryModel, QueryModel queryModelClone, DataProvider dataProvider, string brushQuery, string filterQuery)
         {
             QueryModel = queryModel;
             QueryModelClone = queryModelClone;
@@ -46,8 +45,6 @@ namespace PanoramicDataWin8.controller.data
             FilterQuery = filterQuery;
 
             _dataProvider = dataProvider;
-            _sampleSize = sampleSize;
-            _throttle = throttle;
         }
 
         public override void Start()
@@ -108,13 +105,34 @@ namespace PanoramicDataWin8.controller.data
                 {
                     _dataProvider.StartSampling();
                 }
+
+                int sampleSize = 0;
+                TimeSpan throttle = TimeSpan.FromMilliseconds(0);
+                if (MainViewController.Instance.MainModel.Mode == Mode.instantaneous)
+                {
+                    sampleSize = 10000;
+                }
+                else if (MainViewController.Instance.MainModel.Mode == Mode.batch)
+                {
+                    sampleSize = 10000;
+                    throttle = TimeSpan.FromMilliseconds(5000);
+                }
+                else if (MainViewController.Instance.MainModel.Mode == Mode.progressive)
+                {
+                    sampleSize = 1000;
+                    throttle = TimeSpan.FromMilliseconds(500);
+                }
                 int from = 0;
-                DataPage dataPage = _dataProvider.GetSampleDataRows(from, _sampleSize);
+                DataPage dataPage = _dataProvider.GetSampleDataRows(from, sampleSize);
 
                 List<ResultItemModel> resultItemModels = new List<ResultItemModel>();
                 while (dataPage != null && _isRunning && from < _dataProvider.GetNrTotalSamples())
                 {
-                    from += _sampleSize;
+                    if (throttle.Ticks > 0)
+                    {
+                        await Task.Delay(throttle);
+                    }
+                    from += sampleSize;
                     double progress = Math.Min(1.0, (double)from / (double)_dataProvider.GetNrTotalSamples());
                     filterDataPage(dataPage);
 
@@ -157,12 +175,7 @@ namespace PanoramicDataWin8.controller.data
                     {
                         Debug.WriteLine("DataJob Iteration Time: " + sw.ElapsedMilliseconds);
                     }
-                    dataPage = _dataProvider.GetSampleDataRows(from, _sampleSize);
-
-                    if (_throttle.Ticks > 0)
-                    {
-                        await Task.Delay(_throttle);
-                    }
+                    dataPage = _dataProvider.GetSampleDataRows(from, sampleSize);
                 }
 
                 if (_isRunning)

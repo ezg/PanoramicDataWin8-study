@@ -131,6 +131,7 @@ namespace PanoramicDataWin8.controller.data.sim
                 count++;
             }
 
+            data.Shuffle(MainViewController.Instance.MainModel.Seed);
             List<DataRow> returnList = data.Select(d => new DataRow() { Entries = d }).ToList();
 
             //if (MainViewController.Instance.MainModel.Verbose)

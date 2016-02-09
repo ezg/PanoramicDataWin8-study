@@ -266,9 +266,9 @@ namespace PanoramicDataWin8.utils
             return new Size(TextBlock.DesiredSize.Width, TextBlock.DesiredSize.Height);
         }
 
-        public static void Shuffle<T>(this IList<T> list)
+        public static void Shuffle<T>(this IList<T> list, int seed = 0)
         {
-            Random rng = new Random(0);
+            Random rng = new Random(seed);
             int n = list.Count;
             while (n > 1)
             {
