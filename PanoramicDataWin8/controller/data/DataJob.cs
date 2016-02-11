@@ -129,6 +129,7 @@ namespace PanoramicDataWin8.controller.data
                 DataPage dataPage = _dataProvider.GetSampleDataRows(from, sampleSize);
 
                 List<ResultItemModel> resultItemModels = new List<ResultItemModel>();
+                ResultDescriptionModel resultDescriptionModel = null;
                 while (dataPage != null && _isRunning && from < _dataProvider.GetNrTotalSamples())
                 {
                     if (throttle.Ticks > 0)
@@ -155,7 +156,7 @@ namespace PanoramicDataWin8.controller.data
                             _aggregator.AggregateStep(_binner.BinStructure, QueryModel, QueryModelClone, progress, BrushQuery);
                         }
 
-                        ResultDescriptionModel resultDescriptionModel = null;
+                        resultDescriptionModel = null;
                         if (_binner != null && _binner.BinStructure != null)
                         {
                             resultItemModels = convertBinsToResultItemModels(_binner.BinStructure);
@@ -168,8 +169,10 @@ namespace PanoramicDataWin8.controller.data
                                 MinValues = _binner.BinStructure.AggregatedMinValues.ToDictionary(entry => entry.Key, entry => entry.Value),
                                 MaxValues = _binner.BinStructure.AggregatedMaxValues.ToDictionary(entry => entry.Key, entry => entry.Value)
                             };
-
-                            await fireUpdated(resultItemModels, progress, resultDescriptionModel);
+                            if (MainViewController.Instance.MainModel.Mode == Mode.progressive && progress != 1.0)
+                            {
+                                await fireUpdated(resultItemModels, progress, resultDescriptionModel);
+                            }
                         }
                     }
                     
@@ -178,7 +181,11 @@ namespace PanoramicDataWin8.controller.data
 
                 if (_isRunning)
                 {
-                    await fireCompleted();
+                    await fireCompleted(resultItemModels, 1.0, resultDescriptionModel);
+                }
+                else
+                {
+                    
                 }
                 lock (_lock)
                 {
@@ -311,12 +318,17 @@ namespace PanoramicDataWin8.controller.data
             });
         }
 
-        private async Task fireCompleted()
+        private async Task fireCompleted(List<ResultItemModel> samples, double progress, ResultDescriptionModel resultDescriptionModel)
         {
             var dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                FireJobCompleted(new EventArgs());
+                FireJobCompleted(new JobEventArgs()
+                {
+                    Samples = samples,
+                    Progress = progress,
+                    ResultDescriptionModel = resultDescriptionModel
+                });
             }); 
             if (MainViewController.Instance.MainModel.Verbose)
             {

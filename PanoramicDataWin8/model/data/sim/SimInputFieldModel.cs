@@ -39,5 +39,10 @@ namespace PanoramicDataWin8.model.data.sim
                 return _inputDataType;
             }
         }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

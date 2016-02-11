@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using PanoramicDataWin8.model.data.common;
 using PanoramicDataWin8.model.data.result;
@@ -134,7 +135,8 @@ namespace PanoramicDataWin8.model.data
                 this.SetProperty(ref _schemaModel, value);
             }
         }
-        
+
+        [JsonConverter(typeof(StringEnumConverter))]
         private VisualizationType _visualizationType;
         public VisualizationType VisualizationType
         {
@@ -267,7 +269,7 @@ namespace PanoramicDataWin8.model.data
 
                 if (type != QueryModelUpdatedEventType.FilterModels && SchemaModel.QueryExecuter != null)
                 {
-                    SchemaModel.QueryExecuter.ExecuteQuery(this);
+                    SchemaModel.QueryExecuter.FireExecuteQuery(this);
                 }
             }
         }

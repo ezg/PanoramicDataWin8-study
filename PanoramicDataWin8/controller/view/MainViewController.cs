@@ -77,7 +77,7 @@ namespace PanoramicDataWin8.controller.view
                     _mainModel.DatasetConfigurations.Add(DatasetConfiguration.FromContent(content, file.Name));
                 }
 
-                MainViewController.Instance.LoadData(MainViewController.Instance.MainModel.DatasetConfigurations.First(ds => ds.Name == "titanic"));
+                //MainViewController.Instance.LoadData(MainViewController.Instance.MainModel.DatasetConfigurations.First(ds => ds.Name == "titanic"));
             }
         }
 
@@ -215,7 +215,14 @@ namespace PanoramicDataWin8.controller.view
         {
             var query = string.Join(" || ", queryModel.FilterModels.Select(fm => fm.ToPythonString())) + "";
             MainPage.SetBrushQuery(query);
-            MainModel.BrushQueryModel = queryModel;
+            if (query == "")
+            {
+                MainModel.BrushQueryModel = null;
+            }
+            else
+            {
+                MainModel.BrushQueryModel = queryModel;
+            }
             MainModel.BrushQuery = query;
             var visModels = new List<VisualizationViewModel>(new VisualizationViewModel[] { VisualizationViewModel1, VisualizationViewModel2, VisualizationViewModel3, VisualizationViewModel4 });
             foreach (var visualizationViewModel in visModels)

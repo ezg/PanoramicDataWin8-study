@@ -1,5 +1,7 @@
 ﻿using Microsoft.Practices.Prism.Mvvm;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using PanoramicDataWin8.model.data.sim;
 
 namespace PanoramicDataWin8.model.data
 {
@@ -39,6 +41,7 @@ namespace PanoramicDataWin8.model.data
             }
         }
 
+        [JsonConverter(typeof(StringEnumConverter))]
         private AggregateFunction _aggregateFunction = AggregateFunction.None;
         public AggregateFunction AggregateFunction
         {
@@ -52,45 +55,7 @@ namespace PanoramicDataWin8.model.data
             }
         }
 
-        private double _binSize = 1.0;
-        public double BinSize
-        {
-            get
-            {
-                return _binSize;
-            }
-            set
-            {
-                this.SetProperty(ref _binSize, value);
-            }
-        }
-
-        private double _minBinSize = 1.0;
-        public double MinBinSize
-        {
-            get
-            {
-                return _minBinSize;
-            }
-            set
-            {
-                this.SetProperty(ref _minBinSize, value);
-            }
-        }
-
-        private double _maxBinSize = 100.0;
-        public double MaxBinSize
-        {
-            get
-            {
-                return _maxBinSize;
-            }
-            set
-            {
-                this.SetProperty(ref _maxBinSize, value);
-            }
-        }
-
+        [JsonConverter(typeof(StringEnumConverter))]
         private TransformationFunction _transformationFunction = TransformationFunction.None;
         public TransformationFunction TransformationFunction
         {
@@ -104,6 +69,7 @@ namespace PanoramicDataWin8.model.data
             }
         }
 
+        [JsonConverter(typeof(StringEnumConverter))]
         private SortMode _sortMode = SortMode.None;
         public SortMode SortMode
         {
@@ -117,6 +83,7 @@ namespace PanoramicDataWin8.model.data
             }
         }
 
+        [JsonConverter(typeof(StringEnumConverter))]
         private ScaleFunction _scaleFunction = ScaleFunction.None;
         public ScaleFunction ScaleFunction
         {
@@ -139,7 +106,6 @@ namespace PanoramicDataWin8.model.data
                     aom._aggregateFunction.Equals(this.AggregateFunction) &&
                     aom._inputModel.Equals(this._inputModel) &&
                     aom._transformationFunction.Equals(this._transformationFunction) &&
-                    aom._binSize.Equals(this._binSize) &&
                     aom._scaleFunction.Equals(this._scaleFunction) &&
                     aom._sortMode.Equals(this._sortMode);
             }
@@ -152,10 +118,18 @@ namespace PanoramicDataWin8.model.data
             code ^= this._aggregateFunction.GetHashCode();
             code ^= this._inputModel.GetHashCode();
             code ^= this._transformationFunction.GetHashCode();
-            code ^= this._binSize.GetHashCode();
             code ^= this._scaleFunction.GetHashCode();
             //code ^= this._sortMode.GetHashCode();
             return code;
+        }
+
+        public override string ToString()
+        {
+            if (InputModel is SimInputFieldModel)
+            {
+                return InputModel.ToString();
+            }
+            return base.ToString();
         }
     }
 

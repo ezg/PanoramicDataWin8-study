@@ -34,6 +34,7 @@ using DynamicExpresso;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using PanoramicDataWin8.controller.data;
 using PanoramicDataWin8.controller.input;
 using PanoramicDataWin8.controller.view;
 using PanoramicDataWin8.model.data;
@@ -466,6 +467,8 @@ namespace PanoramicDataWin8
                 {
                     MainViewController.Instance.LoadData(MainViewController.Instance.MainModel.DatasetConfigurations.First(ds => ds.Name == "titanic"));
                 }
+                await Logger.CreateInstance(MainViewController.Instance.MainModel);
+                Logger.Instance.Log("loadDataset");
             }
             else
             {
