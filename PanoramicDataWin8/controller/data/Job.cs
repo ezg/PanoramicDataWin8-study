@@ -10,6 +10,7 @@ namespace PanoramicDataWin8.controller.data
     {
         public event EventHandler<JobEventArgs> JobUpdate;
         public event EventHandler<JobEventArgs> JobCompleted;
+        public event EventHandler<JobEventArgs> JobStopped;
 
         public abstract void Start();
         public abstract void Stop();
@@ -27,6 +28,14 @@ namespace PanoramicDataWin8.controller.data
             if (JobCompleted != null)
             {
                 JobCompleted(this, jobEventArgs);
+            }
+        }
+
+        protected void FireJobStopped(JobEventArgs jobEventArgs)
+        {
+            if (JobStopped != null)
+            {
+                JobStopped(this, jobEventArgs);
             }
         }
     }

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using PanoramicDataWin8.utils;
 
 namespace PanoramicDataWin8.model.data.result

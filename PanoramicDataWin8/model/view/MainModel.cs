@@ -241,6 +241,18 @@ namespace PanoramicDataWin8.model.view
             }
         }
 
+        private double _delayInMs = 6000;
+        public double DelayInMs
+        {
+            get
+            {
+                return _delayInMs;
+            }
+            set
+            {
+                this.SetProperty(ref _delayInMs, value);
+            }
+        }
 
 
         private string _brushQuery = "";

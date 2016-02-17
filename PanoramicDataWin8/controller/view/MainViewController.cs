@@ -6,6 +6,8 @@ using System.Linq;
 using Windows.ApplicationModel;
 using Windows.UI.Xaml.Controls;
 using GeoAPI.Geometries;
+using Newtonsoft.Json.Linq;
+using PanoramicDataWin8.controller.data;
 using PanoramicDataWin8.controller.data.sim;
 using PanoramicDataWin8.controller.data.tuppleware;
 using PanoramicDataWin8.controller.input;
@@ -202,16 +204,16 @@ namespace PanoramicDataWin8.controller.view
                         brushQueryModel = visualizationViewModel.QueryModel;
                     }
                 }
-                SetBrushQuery(brushQueryModel);
+                setBrushQuery(brushQueryModel);
             }
             else if (e.QueryModelUpdatedEventType == QueryModelUpdatedEventType.Structure &&
                      MainModel.BrushQueryModel == sender)
             {
-                SetBrushQuery(MainModel.BrushQueryModel);
+                setBrushQuery(MainModel.BrushQueryModel);
             }
         }
 
-        public void SetBrushQuery(QueryModel queryModel)
+        private void setBrushQuery(QueryModel queryModel)
         {
             var query = string.Join(" || ", queryModel.FilterModels.Select(fm => fm.ToPythonString())) + "";
             MainPage.SetBrushQuery(query);
@@ -223,6 +225,9 @@ namespace PanoramicDataWin8.controller.view
             {
                 MainModel.BrushQueryModel = queryModel;
             }
+
+            Logger.Instance?.Log("BrushQueryVisualization", MainModel.BrushQueryModel, new JProperty("valid", true), new JProperty("brushQuery", query));
+
             MainModel.BrushQuery = query;
             var visModels = new List<VisualizationViewModel>(new VisualizationViewModel[] { VisualizationViewModel1, VisualizationViewModel2, VisualizationViewModel3, VisualizationViewModel4 });
             foreach (var visualizationViewModel in visModels)

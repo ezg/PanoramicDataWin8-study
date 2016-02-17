@@ -25,11 +25,13 @@ namespace PanoramicDataWin8.view.setting
         public int Seed { get; set; }
         public string Participant { get; set; }
 
+        public double DelayInMs { get; set; }
+
         public Settings() { }
 
         public Settings Clone()
         {
-            return new Settings() {Dataset = this.Dataset, Mode = this.Mode, Seed = this.Seed, Participant = this.Participant};
+            return new Settings() {Dataset = this.Dataset, Mode = this.Mode, Seed = this.Seed, Participant = this.Participant, DelayInMs = this.DelayInMs };
         }
     }
 
@@ -86,6 +88,7 @@ namespace PanoramicDataWin8.view.setting
             }
 
             sliderSeed.Value = Settings.Seed;
+            textBoxDelay.Text = Settings.DelayInMs.ToString();
             textBoxParticipant.Text = Settings.Participant;
         }
 
@@ -105,6 +108,12 @@ namespace PanoramicDataWin8.view.setting
             Settings.Seed = (int)sliderSeed.Value;
             Settings.Mode = rbBatch.IsChecked.Value ? Mode.batch : rbInstantaneous.IsChecked.Value ? Mode.instantaneous : Mode.progressive;
             Settings.Dataset = rbDs1.IsChecked.Value ? Dataset.ds1 : rbDs2.IsChecked.Value ? Dataset.ds2 : rbDs3.IsChecked.Value ? Dataset.ds3 : Dataset.ds4;
+
+            var d = 0.0;
+            if (double.TryParse(textBoxDelay.Text, out d))
+            {
+                Settings.DelayInMs = d;
+            }
             Settings.Participant = textBoxParticipant.Text.Trim();
             deferral.Complete();
         }

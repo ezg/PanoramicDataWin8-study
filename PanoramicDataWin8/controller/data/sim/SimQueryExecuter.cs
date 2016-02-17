@@ -39,6 +39,7 @@ namespace PanoramicDataWin8.controller.data.sim
                             ActiveJobs[queryModel].Stop();
                             ActiveJobs[queryModel].JobUpdate -= simJob_JobUpdate;
                             ActiveJobs[queryModel].JobCompleted -= simJob_JobCompleted;
+                            ActiveJobs[queryModel].JobStopped -= simJob_JobStopped;
                             ActiveJobs.Remove(queryModel);
                         }
                         // determine if new job is even needed (i.e., are all relevant inputfieldmodels set)
@@ -55,6 +56,7 @@ namespace PanoramicDataWin8.controller.data.sim
                             ActiveJobs.Add(queryModel, dataJob);
                             dataJob.JobUpdate += simJob_JobUpdate;
                             dataJob.JobCompleted += simJob_JobCompleted;
+                            dataJob.JobStopped += simJob_JobStopped;
                             dataJob.Start();
                         }
                     });
@@ -83,7 +85,7 @@ namespace PanoramicDataWin8.controller.data.sim
             dataJob.QueryModel.ResultModel.Progress = 1.0;
             dataJob.QueryModel.ResultModel.ResultDescriptionModel = jobEventArgs.ResultDescriptionModel;
 
-            Logger.Instance.LogQueryResult("complete", dataJob.QueryModel, dataJob.QueryModel.ResultModel);
+            Logger.Instance.LogQueryResult("complete", dataJob.QueryModel, dataJob.QueryModel.ResultModel, jobEventArgs.BrushQuery, jobEventArgs.FilterQuery);
             dataJob.QueryModel.ResultModel.FireResultModelUpdated(ResultType.Complete);
         }
 
@@ -101,9 +103,16 @@ namespace PanoramicDataWin8.controller.data.sim
             dataJob.QueryModel.ResultModel.Progress = jobEventArgs.Progress;
             dataJob.QueryModel.ResultModel.ResultDescriptionModel = jobEventArgs.ResultDescriptionModel;
 
-            Logger.Instance.LogQueryResult("update", dataJob.QueryModel, dataJob.QueryModel.ResultModel);
+            Logger.Instance.LogQueryResult("update", dataJob.QueryModel, dataJob.QueryModel.ResultModel, jobEventArgs.BrushQuery, jobEventArgs.FilterQuery);
             dataJob.QueryModel.ResultModel.FireResultModelUpdated(ResultType.Update);
         }
+        
+        private void simJob_JobStopped(object sender, JobEventArgs jobEventArgs)
+        {
+            DataJob dataJob = sender as DataJob;
+            Logger.Instance.LogQueryResult("stopped", dataJob.QueryModel, dataJob.QueryModel.ResultModel, jobEventArgs.BrushQuery, jobEventArgs.FilterQuery);
+        }
+
     }
 
     public class ExecuteQueryEventArgs : EventArgs

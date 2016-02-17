@@ -26,7 +26,10 @@
         <RadioButton Content="ds4 (titanic)" GroupName="dataset" Name="rbDs4"/>
 
         <Slider Margin="0,10,0,0" Name="sliderSeed"
-            Header="seed" Minimum="0" Maximum="9" ></Slider>
+            Header="seed" Minimum="1" Maximum="12" ></Slider>
+
+        <TextBlock Text="delay (ms)" Margin="0,10,0,0"/>
+        <TextBox Name="textBoxDelay" Text="6000"></TextBox>
 
         <TextBlock Text="participant" Margin="0,10,0,0"/>
         <TextBox Name="textBoxParticipant" Text="PT"></TextBox>

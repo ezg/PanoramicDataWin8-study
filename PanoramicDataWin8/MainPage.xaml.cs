@@ -58,6 +58,8 @@ namespace PanoramicDataWin8
         private Point _mainPointerManagerPreviousPoint = new Point();
         private DispatcherTimer _messageTimer = new DispatcherTimer();
 
+        private DispatcherTimer _flushTimer = new DispatcherTimer();
+
         private TileMenuItemView _inputMenu = null;
         private TileMenuItemView _visualizationMenu = null;
         private TileMenuItemView _jobMenu = null;
@@ -69,11 +71,81 @@ namespace PanoramicDataWin8
             this.DataContextChanged += MainPage_DataContextChanged;
             //this.KeyUp += MainPage_KeyUp;
             this.KeyDown += MainPage_KeyDown;
+            Application.Current.Suspending += Current_Suspending;
 
             _messageTimer.Interval = TimeSpan.FromMilliseconds(2000);
             _messageTimer.Tick += _messageTimer_Tick;
 
-      }
+            _flushTimer.Interval = TimeSpan.FromMilliseconds(500);
+            _flushTimer.Tick += _flushTimer_Tick;
+            _flushTimer.Start();
+
+            this.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(MainPage_PointerPressed), true);
+            this.AddHandler(UIElement.PointerReleasedEvent, new PointerEventHandler(MainPage_PointerReleased), true);
+            this.AddHandler(UIElement.PointerMovedEvent, new PointerEventHandler(MainPage_PointerMoved), true);
+
+        }
+
+        private void _flushTimer_Tick(object sender, object e)
+        {
+            if (Logger.Instance != null)
+            {
+                Logger.Instance.Flush();
+            }
+        }
+
+        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+        {
+            if (Logger.Instance != null)
+            {
+                Logger.Instance.Flush();
+            }
+        }
+
+        private void MainPage_PointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            if (Logger.Instance != null)
+            {
+                var p = e.GetCurrentPoint(this);
+                Logger.Instance.LogMouse("Moved", p.Position.X, p.Position.Y);
+            }
+        }
+
+        private void MainPage_PointerReleased(object sender, PointerRoutedEventArgs e)
+        {
+            if (Logger.Instance != null)
+            {
+                bool isRight = false;
+                if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
+                {
+                    var properties = e.GetCurrentPoint(this).Properties;
+                    if (properties.PointerUpdateKind == PointerUpdateKind.RightButtonReleased)
+                    {
+                        isRight = true;
+                    }
+                }
+                var p = e.GetCurrentPoint(this);
+                Logger.Instance.LogMouse("Released", p.Position.X, p.Position.Y, isRight);
+            }
+        }
+
+        private void MainPage_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            if (Logger.Instance != null)
+            {
+                bool isRight = false;
+                if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
+                {
+                    var properties = e.GetCurrentPoint(this).Properties;
+                    if (properties.PointerUpdateKind == PointerUpdateKind.RightButtonPressed)
+                    {
+                        isRight = true;
+                    }
+                }
+                var p = e.GetCurrentPoint(this);
+                Logger.Instance.LogMouse("Pressed", p.Position.X, p.Position.Y, isRight);
+            }
+        }
 
         void _messageTimer_Tick(object sender, object e)
         {
@@ -436,7 +508,8 @@ namespace PanoramicDataWin8
                     Dataset = MainViewController.Instance.MainModel.Dataset,
                     Mode = MainViewController.Instance.MainModel.Mode,
                     Seed = MainViewController.Instance.MainModel.Seed, 
-                    Participant = MainViewController.Instance.MainModel.Participant
+                    Participant = MainViewController.Instance.MainModel.Participant,
+                    DelayInMs = MainViewController.Instance.MainModel.DelayInMs
                 });
 
 
@@ -450,6 +523,7 @@ namespace PanoramicDataWin8
                 MainViewController.Instance.MainModel.Seed = signInDialog.Settings.Seed;
                 MainViewController.Instance.MainModel.Mode = signInDialog.Settings.Mode;
                 MainViewController.Instance.MainModel.Participant = signInDialog.Settings.Participant;
+                MainViewController.Instance.MainModel.DelayInMs = signInDialog.Settings.DelayInMs;
 
                 if (MainViewController.Instance.MainModel.Dataset == Dataset.ds1)
                 {
@@ -468,7 +542,7 @@ namespace PanoramicDataWin8
                     MainViewController.Instance.LoadData(MainViewController.Instance.MainModel.DatasetConfigurations.First(ds => ds.Name == "titanic"));
                 }
                 await Logger.CreateInstance(MainViewController.Instance.MainModel);
-                Logger.Instance.Log("loadDataset");
+                Logger.Instance. Log("loadDataset");
             }
             else
             {
@@ -494,7 +568,12 @@ namespace PanoramicDataWin8
                 bool correct = parseExpression(_currentBrushQuery, errorTbBrush);
                 if (correct)
                 {
+                    Logger.Instance?.Log("BrushQueryTextBox", new JProperty("valid", true), new JProperty("brushQuery", _currentBrushQuery));
                     MainViewController.Instance.SetBrushQuery(_currentBrushQuery);
+                }
+                else
+                {
+                    Logger.Instance?.Log("BrushQueryTextBox", new JProperty("valid", false), new JProperty("brushQuery", _currentBrushQuery));
                 }
             }
         }
@@ -527,8 +606,13 @@ namespace PanoramicDataWin8
                 bool correct = parseExpression(_currentFilterQuery, errorTbFilter);
                 if (correct)
                 {
+                    Logger.Instance?.Log("FilterQueryTextBox", new JProperty("valid", true), new JProperty("filterQuery", _currentFilterQuery));
                     MainViewController.Instance.MainModel.FilterQuery = _currentFilterQuery;
                     fireQueryUpdate();
+                }
+                else
+                {
+                    Logger.Instance?.Log("FilterQueryTextBox", new JProperty("valid", false), new JProperty("filterQuery", _currentFilterQuery));
                 }
             }
         }

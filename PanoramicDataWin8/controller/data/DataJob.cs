@@ -185,7 +185,7 @@ namespace PanoramicDataWin8.controller.data
                 }
                 else
                 {
-                    
+                    await fireStopped(resultItemModels, 1.0, resultDescriptionModel);
                 }
                 lock (_lock)
                 {
@@ -250,10 +250,13 @@ namespace PanoramicDataWin8.controller.data
                     return uniqueValues[valueAsString];
                 }
             }
-            else if (((InputFieldModel) inputOperationModel.InputModel).InputDataType == InputDataTypeConstants.FLOAT ||
-                     ((InputFieldModel) inputOperationModel.InputModel).InputDataType == InputDataTypeConstants.INT)
+            else if (((InputFieldModel) inputOperationModel.InputModel).InputDataType == InputDataTypeConstants.FLOAT)
             {
                 return value == null ? null : (double?) value;
+            }
+            else if (((InputFieldModel) inputOperationModel.InputModel).InputDataType == InputDataTypeConstants.INT)
+            {
+                return value == null ? null : (int?)value;
             }
             else if (((InputFieldModel) inputOperationModel.InputModel).InputDataType == InputDataTypeConstants.TIME)
             {
@@ -313,7 +316,9 @@ namespace PanoramicDataWin8.controller.data
                 {
                     Samples = samples,
                     Progress = progress,
-                    ResultDescriptionModel = resultDescriptionModel
+                    ResultDescriptionModel = resultDescriptionModel,
+                    FilterQuery = FilterQuery,
+                    BrushQuery = BrushQuery
                 });
             });
         }
@@ -327,13 +332,31 @@ namespace PanoramicDataWin8.controller.data
                 {
                     Samples = samples,
                     Progress = progress,
-                    ResultDescriptionModel = resultDescriptionModel
+                    ResultDescriptionModel = resultDescriptionModel,
+                    FilterQuery = FilterQuery,
+                    BrushQuery = BrushQuery
                 });
             }); 
             if (MainViewController.Instance.MainModel.Verbose)
             {
                 Debug.WriteLine("DataJob Total Run Time: " + _stopWatch.ElapsedMilliseconds);
             }
+        }
+
+        private async Task fireStopped(List<ResultItemModel> samples, double progress, ResultDescriptionModel resultDescriptionModel)
+        {
+            var dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                FireJobStopped(new JobEventArgs()
+                {
+                    Samples = samples,
+                    Progress = progress,
+                    ResultDescriptionModel = resultDescriptionModel,
+                    FilterQuery = FilterQuery,
+                    BrushQuery = BrushQuery
+                });
+            });
         }
     }
 
@@ -342,6 +365,8 @@ namespace PanoramicDataWin8.controller.data
         public List<ResultItemModel> Samples { get; set; }
         public double Progress { get; set; }
         public ResultDescriptionModel ResultDescriptionModel { get; set; }
+        public string FilterQuery { get; set; }
+        public string BrushQuery { get; set; }
     }
 }
 

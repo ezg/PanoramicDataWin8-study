@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using GeoAPI.Geometries;
+using Newtonsoft.Json.Linq;
 using PanoramicDataWin8.controller.view;
 using PanoramicDataWin8.model.data;
 using PanoramicDataWin8.model.data.result;
@@ -22,6 +23,7 @@ using PanoramicDataWin8.utils;
 using PanoramicDataWin8.view.common;
 using PanoramicDataWin8.view.inq;
 using PanoramicDataWin8.view.vis.menu;
+using PanoramicDataWin8.controller.data;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -320,14 +322,20 @@ namespace PanoramicDataWin8.view.vis.render
         
         void InputFieldViewInputFieldViewModelTapped(object sender, EventArgs e)
         {
-            InputFieldViewModel model = (sender as InputFieldView).DataContext as InputFieldViewModel;
+            InputFieldViewModel model = ((InputFieldView) sender).DataContext as InputFieldViewModel;
             var visModel = model.VisualizationViewModel;
             if (DataContext == visModel)
             {
+                var xInputFieldView = (InputFieldView)GetTemplateChild("xInputFieldView");
+                var yInputFieldView = (InputFieldView)GetTemplateChild("yInputFieldView");
+                var axisName = ((InputFieldView) sender) == xInputFieldView ? "x" : "y";
+
                 visModel.ActiveStopwatch.Restart();
                 if (model.InputOperationModel.AggregateFunction == AggregateFunction.None)
                 {
+                    Logger.Instance?.Log("changeAxisAggregation", visModel.QueryModel, new JProperty("axis", axisName), new JProperty("newValue", AggregateFunction.Count.ToString()), new JProperty("oldValue", AggregateFunction.None.ToString()));
                     model.InputOperationModel.AggregateFunction = AggregateFunction.Count;
+                    
                 }
                 else if (model.InputOperationModel.AggregateFunction == AggregateFunction.Count)
                 {
@@ -336,15 +344,24 @@ namespace PanoramicDataWin8.view.vis.render
                         ((InputFieldModel) model.InputOperationModel.InputModel).InputDataType == InputDataTypeConstants.DATE ||
                         ((InputFieldModel) model.InputOperationModel.InputModel).InputDataType == InputDataTypeConstants.TIME)
                     {
+                        Logger.Instance?.Log("changeAxisAggregation", visModel.QueryModel, new JProperty("axis", axisName),
+                           new JProperty("newValue", AggregateFunction.Avg.ToString()),
+                           new JProperty("oldValue", AggregateFunction.Count.ToString()));
                         model.InputOperationModel.AggregateFunction = AggregateFunction.Avg;
                     }
                     else
                     {
+                        Logger.Instance?.Log("changeAxisAggregation", visModel.QueryModel, new JProperty("axis", axisName),
+                              new JProperty("newValue", AggregateFunction.None.ToString()),
+                              new JProperty("oldValue", AggregateFunction.Count.ToString()));
                         model.InputOperationModel.AggregateFunction = AggregateFunction.None;
                     }
                 }
                 else if (model.InputOperationModel.AggregateFunction == AggregateFunction.Avg)
                 {
+                    Logger.Instance?.Log("changeAxisAggregation", visModel.QueryModel, new JProperty("axis", axisName),
+                         new JProperty("newValue", AggregateFunction.Avg.ToString()),
+                         new JProperty("oldValue", AggregateFunction.None.ToString()));
                     model.InputOperationModel.AggregateFunction = AggregateFunction.None;
                 }
             }
@@ -459,6 +476,20 @@ namespace PanoramicDataWin8.view.vis.render
             }
             QueryModel qModel = (DataContext as VisualizationViewModel).QueryModel;
 
+            bool intersectsWithX = false;
+            bool intersectsWithY = false;
+
+            var xBounds = xInputFieldView.GetBounds(MainViewController.Instance.InkableScene).GetPolygon();
+            if (xBounds.Intersects(e.Bounds.GetPolygon()))
+            {
+                intersectsWithX = true;
+            }
+            var yBounds = yInputFieldView.GetBounds(MainViewController.Instance.InkableScene).GetPolygon();
+            if (yBounds.Intersects(e.Bounds.GetPolygon()) && !xBounds.Intersects(e.Bounds.GetPolygon()))
+            {
+                intersectsWithY = true;
+            }
+
             // if both are empty beforehand add default value
             if (!qModel.GetUsageInputOperationModel(InputUsage.X).Any() && !qModel.GetUsageInputOperationModel(InputUsage.Y).Any())
             {
@@ -466,10 +497,20 @@ namespace PanoramicDataWin8.view.vis.render
                 value.AggregateFunction = AggregateFunction.Count;
                 qModel.AddUsageInputOperationModel(InputUsage.DefaultValue, value);
             }
-
-            var xBounds = xInputFieldView.GetBounds(MainViewController.Instance.InkableScene).GetPolygon();
-            if (xBounds.Intersects(e.Bounds.GetPolygon()))
+            
+            if (intersectsWithX)
             {
+                Logger.Instance?.Log("changeAxis", qModel,
+                    new JProperty("oldXAttribute", qModel.GetUsageInputOperationModel(InputUsage.X).FirstOrDefault()?.ToString()),
+                    new JProperty("oldXAggregation", qModel.GetUsageInputOperationModel(InputUsage.X).FirstOrDefault()?.AggregateFunction.ToString()),
+                    new JProperty("newXAttribute", e.InputOperationModel?.ToString()),
+                    new JProperty("newXAggregation", e.InputOperationModel?.AggregateFunction.ToString()),
+
+                    new JProperty("oldYAttribute", qModel.GetUsageInputOperationModel(InputUsage.Y).FirstOrDefault()?.ToString()),
+                    new JProperty("oldYAggregation", qModel.GetUsageInputOperationModel(InputUsage.Y).FirstOrDefault()?.AggregateFunction.ToString()),
+                    new JProperty("newYAttribute", qModel.GetUsageInputOperationModel(InputUsage.Y).FirstOrDefault()?.ToString()),
+                    new JProperty("newYAggregation", qModel.GetUsageInputOperationModel(InputUsage.Y).FirstOrDefault()?.AggregateFunction.ToString()));
+
                 if (qModel.GetUsageInputOperationModel(InputUsage.X).Any())
                 {
                     qModel.RemoveUsageInputOperationModel(InputUsage.X, qModel.GetUsageInputOperationModel(InputUsage.X).First());
@@ -477,10 +518,20 @@ namespace PanoramicDataWin8.view.vis.render
                 qModel.AddUsageInputOperationModel(InputUsage.X, e.InputOperationModel);
                 return;
             }
-
-            var yBounds = yInputFieldView.GetBounds(MainViewController.Instance.InkableScene).GetPolygon();
-            if (yBounds.Intersects(e.Bounds.GetPolygon()) && !xBounds.Intersects(e.Bounds.GetPolygon()))
+            
+            if (intersectsWithY)
             {
+                Logger.Instance?.Log("changeAxis", qModel,
+                    new JProperty("oldXAttribute", qModel.GetUsageInputOperationModel(InputUsage.X).FirstOrDefault()?.ToString()),
+                    new JProperty("oldXAggregation", qModel.GetUsageInputOperationModel(InputUsage.X).FirstOrDefault()?.AggregateFunction.ToString()),
+                    new JProperty("newXAttribute", qModel.GetUsageInputOperationModel(InputUsage.X).FirstOrDefault()?.ToString()),
+                    new JProperty("newXAggregation", qModel.GetUsageInputOperationModel(InputUsage.X).FirstOrDefault()?.AggregateFunction.ToString()),
+
+                    new JProperty("oldYAttribute", qModel.GetUsageInputOperationModel(InputUsage.Y).FirstOrDefault()?.ToString()),
+                    new JProperty("oldYAggregation", qModel.GetUsageInputOperationModel(InputUsage.Y).FirstOrDefault()?.AggregateFunction.ToString()),
+                    new JProperty("newYAttribute", e.InputOperationModel?.ToString()),
+                    new JProperty("newYAggregation", e.InputOperationModel?.AggregateFunction.ToString()));
+
                 if (qModel.GetUsageInputOperationModel(InputUsage.Y).Any())
                 {
                     qModel.RemoveUsageInputOperationModel(InputUsage.Y, qModel.GetUsageInputOperationModel(InputUsage.Y).First());
@@ -491,16 +542,45 @@ namespace PanoramicDataWin8.view.vis.render
 
 
             // if both are empty beforehand add default value
-            if (!qModel.GetUsageInputOperationModel(InputUsage.X).Any() && !qModel.GetUsageInputOperationModel(InputUsage.Y).Any())
+            if (!intersectsWithX && !intersectsWithY)
             {
+                Logger.Instance?.Log("changeAxis", qModel,
+                    new JProperty("oldXAttribute", qModel.GetUsageInputOperationModel(InputUsage.X).FirstOrDefault()?.ToString()),
+                    new JProperty("oldXAggregation", qModel.GetUsageInputOperationModel(InputUsage.X).FirstOrDefault()?.AggregateFunction.ToString()),
+                    new JProperty("newXAttribute", e.InputOperationModel?.ToString()),
+                    new JProperty("newXAggregation", AggregateFunction.None.ToString()),
+
+                    new JProperty("oldYAttribute", qModel.GetUsageInputOperationModel(InputUsage.Y).FirstOrDefault()?.ToString()),
+                    new JProperty("oldYAggregation", qModel.GetUsageInputOperationModel(InputUsage.Y).FirstOrDefault()?.AggregateFunction.ToString()),
+                    new JProperty("newYAttribute", e.InputOperationModel?.ToString()),
+                    new JProperty("newYAggregation", AggregateFunction.Count.ToString()));
+
+                // set y
+                if (qModel.GetUsageInputOperationModel(InputUsage.Y).Any())
+                {
+                    qModel.RemoveUsageInputOperationModel(InputUsage.Y, qModel.GetUsageInputOperationModel(InputUsage.Y).First());
+                }
                 InputOperationModel value = new InputOperationModel(e.InputOperationModel.InputModel);
                 value.AggregateFunction = AggregateFunction.Count;
                 qModel.AddUsageInputOperationModel(InputUsage.Y, value);
 
+                // set x
+                if (qModel.GetUsageInputOperationModel(InputUsage.X).Any())
+                {
+                    qModel.RemoveUsageInputOperationModel(InputUsage.X, qModel.GetUsageInputOperationModel(InputUsage.X).First());
+                }
                 value = new InputOperationModel(e.InputOperationModel.InputModel);
                 value.AggregateFunction = AggregateFunction.None;
                 qModel.AddUsageInputOperationModel(InputUsage.X, value);
-                return;
+
+                // set default value
+                if (qModel.GetUsageInputOperationModel(InputUsage.DefaultValue).Any())
+                {
+                    qModel.RemoveUsageInputOperationModel(InputUsage.DefaultValue, qModel.GetUsageInputOperationModel(InputUsage.DefaultValue).First());
+                }
+                value = new InputOperationModel(e.InputOperationModel.InputModel);
+                value.AggregateFunction = AggregateFunction.Count;
+                qModel.AddUsageInputOperationModel(InputUsage.DefaultValue, value);
             }
         }
     }
