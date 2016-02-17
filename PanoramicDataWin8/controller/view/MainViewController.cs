@@ -255,6 +255,12 @@ namespace PanoramicDataWin8.controller.view
             }
         }
 
+        public void SetFilterQuery(QueryModel queryModel)
+        {
+            var query = string.Join(" || ", queryModel.FilterModels.Select(fm => fm.ToPythonString())) + "";
+            MainPage.SetFilterQuery(query);
+        }
+
         public VisualizationViewModel CreateVisualizationViewModel(TaskModel taskModel, InputOperationModel inputOperationModel)
         {
             VisualizationViewModel visModel = VisualizationViewModelFactory.CreateDefault(_mainModel.SchemaModel, taskModel, inputOperationModel != null ? inputOperationModel.InputModel : null);

@@ -19,6 +19,7 @@
                 Points="0,30 30,0, 30,30"
                 Fill="{StaticResource backgroundBrush}"
                 Stroke="{StaticResource lightBrush}"/>
+            <Canvas Name="renderCanvas"></Canvas>
         </Grid>
     </Border>
 </UserControl>

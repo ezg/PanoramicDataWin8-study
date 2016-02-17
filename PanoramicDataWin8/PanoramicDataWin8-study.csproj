@@ -227,7 +227,6 @@
     <Compile Include="view\style\ScrollViewStyle.xaml.cs">
       <DependentUpon>ScrollViewStyle.xaml</DependentUpon>
     </Compile>
-    <Compile Include="view\style\TwoFingerScrollBehavior.cs" />
     <Compile Include="view\vis\AddAttachmentItemView.xaml.cs">
       <DependentUpon>AddAttachmentItemView.xaml</DependentUpon>
     </Compile>

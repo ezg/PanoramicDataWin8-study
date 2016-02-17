@@ -170,7 +170,10 @@ namespace PanoramicDataWin8.controller.data
             {
                 if (value is InputOperationModel)
                 {
-                    new JValue((((InputOperationModel)value).InputModel as SimInputFieldModel).Name).WriteTo(writer);
+                    var obj = new JObject(
+                        new JProperty("attribute", ((SimInputFieldModel) ((InputOperationModel) value).InputModel).Name),
+                        new JProperty("aggregation", ((InputOperationModel) value).AggregateFunction.ToString()));
+                    obj.WriteTo(writer);
                 }
             }
         }

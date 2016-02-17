@@ -550,6 +550,19 @@ namespace PanoramicDataWin8
             }
         }
 
+        public void SetFilterQuery(string filterQuery)
+        {
+            tbFilter.Text = filterQuery;
+            if (tbFilter.Text.Trim() != filterQuery)
+            {
+                tbFilter.Background = Application.Current.Resources.MergedDictionaries[0]["highlightBrush"] as SolidColorBrush;
+            }
+            else
+            {
+                tbFilter.Background = Application.Current.Resources.MergedDictionaries[0]["backgroundBrush"] as SolidColorBrush;
+            }
+        }
+
 
         public void SetBrushQuery(string brushQuery)
         {

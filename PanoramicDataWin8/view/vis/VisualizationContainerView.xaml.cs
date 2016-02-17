@@ -19,6 +19,7 @@ using Windows.UI.Xaml.Navigation;
 using Windows.UI.Core;
 using Windows.System;
 using Windows.UI.Input;
+using Windows.UI.Xaml.Shapes;
 using PanoramicDataWin8.controller.view;
 using PanoramicDataWin8.model.data;
 using PanoramicDataWin8.model.view;
@@ -29,7 +30,7 @@ using PanoramicDataWin8.view.style;
 
 namespace PanoramicDataWin8.view.vis
 {
-    public sealed partial class VisualizationContainerView : UserControl, IScribbable, InputFieldViewModelEventHandler, IOneFingerListener
+    public sealed partial class VisualizationContainerView : UserControl, IScribbable, InputFieldViewModelEventHandler
     {
         private Point _previousPoint = new Point();
         private Point _initialPoint = new Point();
@@ -123,73 +124,7 @@ namespace PanoramicDataWin8.view.vis
             }
         }
 
-        public void Pressed(FrameworkElement sender, PointerManagerEvent e)
-        {
-            _tapStart.Restart();
-            var trans = sender.TransformToVisual(MainViewController.Instance.InkableScene);
-            _previousPoint = trans.TransformPoint(e.CurrentContacts[e.TriggeringPointer.PointerId].Position);
-            _initialPoint = _previousPoint;
-            _movingStarted = false;
-            _fingerDown = true;
-
-            this.SendToFront();
-            VisualizationViewModel model = (DataContext as VisualizationViewModel);
-            foreach (var avm in model.AttachementViewModels)
-            {
-                avm.IsDisplayed = true;
-            }
-        }
-
-        public void TwoFingerMoved()
-        {
-            _tapStart.Restart();
-        }
-
-        public void Moved(FrameworkElement sender, PointerManagerEvent e)
-        {
-            var trans = sender.TransformToVisual(MainViewController.Instance.InkableScene);
-            var currentPoint = trans.TransformPoint(e.CurrentContacts[e.TriggeringPointer.PointerId].Position);
-            if (((_initialPoint.GetVec() - currentPoint.GetVec()).Length2 > 100 || _movingStarted) &&
-                _tapStart.ElapsedMilliseconds > 50)
-            {
-                _movingStarted = true;
-                Vec delta = _previousPoint.GetVec() - currentPoint.GetVec();
-                VisualizationViewModel model = (DataContext as VisualizationViewModel);
-                model.Position -= delta;
-
-            }
-            _previousPoint = currentPoint;
-        }
-
-        public void Released(FrameworkElement sender, PointerManagerEvent e, bool isRightMouse)
-        {
-            if (_movingStarted)
-            {
-                _movingStarted = false;
-            }
-            else if (_tapStart.ElapsedMilliseconds < 300)
-            {
-                var trans = sender.TransformToVisual(MainViewController.Instance.InkableScene);
-                if (e.CurrentContacts.ContainsKey(e.TriggeringPointer.PointerId))
-                {
-                    _renderer.StartSelection(trans.TransformPoint(e.CurrentContacts[e.TriggeringPointer.PointerId].Position));
-                    _renderer.EndSelection();
-                }
-            }
-            _fingerDown = false;
-
-            VisualizationViewModel model = (DataContext as VisualizationViewModel);
-            foreach (var avm in model.AttachementViewModels)
-            {
-                avm.IsDisplayed = false;
-            }
-
-            if (isRightMouse)
-            {
-                MainViewController.Instance.RemoveVisualizationViewModel(this);
-            }
-        }
-
+        private Rectangle selectionShape = null;
         void VisualizationContainerView_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             var state = CoreWindow.GetForCurrentThread().GetKeyState(VirtualKey.Control);
@@ -198,21 +133,35 @@ namespace PanoramicDataWin8.view.vis
             {
                 return;
             }
-            _tapStart.Restart();
-            _previousPoint = e.GetCurrentPoint(MainViewController.Instance.InkableScene).Position;
-            _initialPoint = _previousPoint;
-            _movingStarted = false;
-            e.Handled = true;
-            this.CapturePointer(e.Pointer);
-            this.PointerMoved += VisualizationContainerView_PointerMoved;
-            this.PointerReleased += VisualizationContainerView_PointerReleased;
-            _fingerDown = true;
-
-            this.SendToFront();
-            VisualizationViewModel model = (DataContext as VisualizationViewModel);
-            foreach (var avm in model.AttachementViewModels)
+            
+            if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                avm.IsDisplayed = true;
+
+                VisualizationViewModel model = (DataContext as VisualizationViewModel);
+
+                var properties = e.GetCurrentPoint(this).Properties;
+                if (properties.PointerUpdateKind == PointerUpdateKind.RightButtonPressed)
+                {
+                    MainViewController.Instance.SetFilterQuery(model.QueryModel);
+                }
+                else
+                {
+                    _tapStart.Restart();
+                    _previousPoint = e.GetCurrentPoint(MainViewController.Instance.InkableScene).Position;
+                    _initialPoint = _previousPoint;
+                    _movingStarted = false;
+                    e.Handled = true;
+                    this.CapturePointer(e.Pointer);
+                    this.PointerMoved += VisualizationContainerView_PointerMoved;
+                    this.PointerReleased += VisualizationContainerView_PointerReleased;
+                    _fingerDown = true;
+
+                    this.SendToFront();
+                    foreach (var avm in model.AttachementViewModels)
+                    {
+                        avm.IsDisplayed = true;
+                    }
+                }
             }
         }
 
@@ -225,7 +174,44 @@ namespace PanoramicDataWin8.view.vis
                 Vec delta = _previousPoint.GetVec() - currentPoint.GetVec();
                 VisualizationViewModel model = (DataContext as VisualizationViewModel);
                 model.Position -= delta;
-                
+
+                if (selectionShape == null)
+                {
+                    selectionShape = new Rectangle();
+                    selectionShape.Stroke = Application.Current.Resources.MergedDictionaries[0]["darkBrush"] as SolidColorBrush;
+                    selectionShape.RadiusX = selectionShape.RadiusY = 4;
+                    selectionShape.StrokeThickness = 1;
+                    renderCanvas.Children.Add(selectionShape);
+                }
+
+
+                // to the right
+                double w, h, x, y = 0;
+                if (_initialPoint.X < currentPoint.X)
+                {
+                    w = currentPoint.X - _initialPoint.X;
+                    x = _initialPoint.X;
+                }
+                else
+                {
+                    w = _initialPoint.X - currentPoint.X;
+                    x = currentPoint.X;
+                }
+                // to the bottom
+                if (_initialPoint.Y < currentPoint.Y)
+                {
+                    h = currentPoint.Y - _initialPoint.Y;
+                    y = _initialPoint.Y;
+                }
+                else
+                {
+                    h = _initialPoint.Y - currentPoint.Y;
+                    y = currentPoint.Y;
+                }
+                selectionShape.Width = Math.Max(w,1);
+                selectionShape.Height = Math.Max(h, 1);
+                var point = MainViewController.Instance.InkableScene.TransformToVisual(this).TransformPoint(new Point(x, y));
+                selectionShape.RenderTransform = new TranslateTransform() {X = point.X, Y = point.Y};
             }
             _previousPoint = currentPoint;
             e.Handled = true;
@@ -235,7 +221,16 @@ namespace PanoramicDataWin8.view.vis
         {
             if (_movingStarted)
             {
+                renderCanvas.Children.Clear();
+                selectionShape = null;
                 _movingStarted = false;
+                var current = e.GetCurrentPoint(MainViewController.Instance.InkableScene).Position;
+                _renderer.StartSelection(_initialPoint);
+                _renderer.MoveSelection(new Point(Math.Min(current.X, _initialPoint.X), Math.Min(current.Y, _initialPoint.Y)));
+                _renderer.MoveSelection(new Point(Math.Max(current.X, _initialPoint.X), Math.Min(current.Y, _initialPoint.Y)));
+                _renderer.MoveSelection(new Point(Math.Max(current.X, _initialPoint.X), Math.Max(current.Y, _initialPoint.Y)));
+                _renderer.MoveSelection(new Point(Math.Min(current.X, _initialPoint.X), Math.Max(current.Y, _initialPoint.Y)));
+                _renderer.EndSelection();
             }
             else if (_tapStart.ElapsedMilliseconds < 300)
             {
