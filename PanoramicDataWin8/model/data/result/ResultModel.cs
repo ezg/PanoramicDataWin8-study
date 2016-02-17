@@ -59,6 +59,7 @@ namespace PanoramicDataWin8.model.data.result
         }
 
 
+        [JsonConverter(typeof(StringEnumConverter))]
         private ResultType _resultType = ResultType.Clear;
         public ResultType ResultType
         {
