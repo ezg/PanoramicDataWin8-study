@@ -14,5 +14,7 @@ namespace PanoramicDataWin8.controller.data
         }
 
         public abstract void FireExecuteQuery(QueryModel queryModel);
+        
+        public abstract void Dispose();
     }
 }

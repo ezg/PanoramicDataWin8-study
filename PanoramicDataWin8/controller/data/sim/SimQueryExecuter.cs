@@ -63,6 +63,18 @@ namespace PanoramicDataWin8.controller.data.sim
                 }));
         }
 
+        public override void Dispose()
+        {
+            foreach (var queryModel in ActiveJobs.Keys.ToArray())
+            {
+                ActiveJobs[queryModel].Stop();
+                ActiveJobs[queryModel].JobUpdate -= simJob_JobUpdate;
+                ActiveJobs[queryModel].JobCompleted -= simJob_JobCompleted;
+                ActiveJobs[queryModel].JobStopped -= simJob_JobStopped;
+                ActiveJobs.Remove(queryModel);
+            }
+        }
+
         public override void FireExecuteQuery(QueryModel queryModel)
         {
             if (ExecuteQuery != null)

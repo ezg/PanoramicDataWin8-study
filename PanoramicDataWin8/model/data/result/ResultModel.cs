@@ -59,10 +59,9 @@ namespace PanoramicDataWin8.model.data.result
                 this.SetProperty(ref _progress, value);
             }
         }
-
-
-        [JsonConverter(typeof(StringEnumConverter))]
+       
         private ResultType _resultType = ResultType.Clear;
+        [JsonConverter(typeof(StringEnumConverter))]
         public ResultType ResultType
         {
             get
@@ -75,6 +74,6 @@ namespace PanoramicDataWin8.model.data.result
             }
         }
     }
-
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum ResultType { Clear, Update, Complete }
 }

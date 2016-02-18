@@ -118,12 +118,12 @@ namespace PanoramicDataWin8.controller.data
                 else if (MainViewController.Instance.MainModel.Mode == Mode.batch)
                 {
                     sampleSize = 10000;
-                    throttle = TimeSpan.FromMilliseconds(5000);
+                    throttle = TimeSpan.FromMilliseconds(MainViewController.Instance.MainModel.DelayInMs);
                 }
                 else if (MainViewController.Instance.MainModel.Mode == Mode.progressive)
                 {
                     sampleSize = 1000;
-                    throttle = TimeSpan.FromMilliseconds(500);
+                    throttle = TimeSpan.FromMilliseconds(MainViewController.Instance.MainModel.DelayInMs / 10.0);
                 }
                 int from = 0;
                 DataPage dataPage = _dataProvider.GetSampleDataRows(from, sampleSize);
@@ -132,7 +132,7 @@ namespace PanoramicDataWin8.controller.data
                 ResultDescriptionModel resultDescriptionModel = null;
                 while (dataPage != null && _isRunning && from < _dataProvider.GetNrTotalSamples())
                 {
-                    if (throttle.Ticks > 0)
+                    if (throttle.Ticks > 0 && !(MainViewController.Instance.MainModel.Mode == Mode.progressive && from == 0))
                     {
                         await Task.Delay(throttle);
                     }

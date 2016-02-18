@@ -132,6 +132,10 @@ namespace PanoramicDataWin8.controller.view
             }
             else if (datasetConfiguration.Backend.ToLower() == "sim")
             {
+                if (_mainModel.SchemaModel != null)
+                {
+                    _mainModel.SchemaModel.QueryExecuter.Dispose();
+                }
                 var newSchemaModel = new SimSchemaModel();
                 
                 _mainModel.ThrottleInMillis = datasetConfiguration.ThrottleInMillis;

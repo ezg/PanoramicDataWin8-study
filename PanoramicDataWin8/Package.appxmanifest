@@ -29,6 +29,5 @@
     <Capability Name="internetClient" />
     <Capability Name="privateNetworkClientServer" />
     <Capability Name="internetClientServer" />
-    <Capability Name="documentsLibrary" />
   </Capabilities>
 </Package>
