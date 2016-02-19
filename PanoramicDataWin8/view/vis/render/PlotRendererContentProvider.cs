@@ -29,8 +29,8 @@ namespace PanoramicDataWin8.view.vis.render
         private bool _isResultEmpty = false;
 
         private float _leftOffset = 40;
-        private float _rightOffset = 10;
-        private float _topOffset = 10;
+        private float _rightOffset = 20;
+        private float _topOffset = 20;
         private float _bottomtOffset = 45;
 
         private float _deviceWidth = 0;
@@ -256,10 +256,14 @@ namespace PanoramicDataWin8.view.vis.render
                         if (_visualizationDescriptionModel.AxisTypes[_xIndex] == AxisType.Quantitative)
                         {
                             DrawString(canvasArgs, _textFormat, xFrom, yFrom + 5, label.Label.ToString(), _textColor, true, true, false);
+                            if (lastLabel)
+                            {
+                                DrawString(canvasArgs, _textFormat, xTo, yFrom + 5, label.MaxValue.ToString(), _textColor, true, true, false);
+                            }
                         }
                         else
                         {
-                            DrawString(canvasArgs, _textFormat, xFrom + (xTo - xFrom) / 2.0f, yFrom + 5, label.Label.ToString(), _textColor, true, true, false);
+                            DrawString(canvasArgs, _textFormat, xFrom + (xTo - xFrom)/2.0f, yFrom + 5, label.Label.ToString(), _textColor, true, true, false);
                         }
                     }
                     count++;
@@ -289,10 +293,14 @@ namespace PanoramicDataWin8.view.vis.render
                         if (_visualizationDescriptionModel.AxisTypes[_yIndex] == AxisType.Quantitative)
                         {
                             DrawString(canvasArgs, _textFormat, xFrom - 10, yFrom, label.Label.ToString(), _textColor, false, false, true);
+                            if (lastLabel)
+                            {
+                                DrawString(canvasArgs, _textFormat, xFrom - 10, yTo, label.MaxValue.ToString(), _textColor, false, false, true);
+                            }
                         }
                         else
                         {
-                            DrawString(canvasArgs, _textFormat, xFrom - 10, yFrom + (yTo - yFrom) / 2.0f, label.Label.ToString(), _textColor, false, false, true);
+                            DrawString(canvasArgs, _textFormat, xFrom - 10, yFrom + (yTo - yFrom)/2.0f, label.Label.ToString(), _textColor, false, false, true);
                         }
                     }
                     count++;
@@ -319,7 +327,7 @@ namespace PanoramicDataWin8.view.vis.render
 
         private void renderCell(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl canvas, Microsoft.Graphics.Canvas.UI.Xaml.CanvasDrawEventArgs canvasArgs)
         {
-            computeSizesAndRenderLabels(canvas, canvasArgs, false);
+            computeSizesAndRenderLabels(canvas, canvasArgs, true);
             if (_deviceHeight < 0 || _deviceWidth < 0)
             {
                 return;
@@ -342,6 +350,12 @@ namespace PanoramicDataWin8.view.vis.render
             float yFrom = 0;
             float xTo = 0;
             float yTo = 0;
+
+            float xFromMargin = 0;
+            float yFromMargin = 0;
+            float xToMargin = 0;
+            float yToMargin = 0;
+
             for (int xi = 0; xi < resultDescriptionModel.BinRanges[_xIndex].GetBins().Count; xi++)
             {
                 for (int yi = 0; yi < resultDescriptionModel.BinRanges[_yIndex].GetBins().Count; yi++)
@@ -355,15 +369,26 @@ namespace PanoramicDataWin8.view.vis.render
                             double? yValue = (double?)resultItem.Values[_queryModelClone.GetUsageInputOperationModel(InputUsage.Y).First()].Value;
                             double? value = null;
                             double? unNormalizedvalue = null;
+                            double? xMargin = null;
+                            double? xMarginAbsolute = null;
+                            double? yMargin = null;
+                            double? yMarginAbsolute = null;
+                            double? valueMargin = null;
+                            double? valueMarginAbsolute = null;
+
                             if (_queryModelClone.GetUsageInputOperationModel(InputUsage.Value).Any() && resultItem.Values.ContainsKey(_queryModelClone.GetUsageInputOperationModel(InputUsage.Value).First()))
                             {
                                 unNormalizedvalue = (double?)resultItem.Values[_queryModelClone.GetUsageInputOperationModel(InputUsage.Value).First()].Value;
                                 value = (double?)resultItem.Values[_queryModelClone.GetUsageInputOperationModel(InputUsage.Value).First()].NoramlizedValue;
+                                valueMargin = resultItem.Margins[_queryModelClone.GetUsageInputOperationModel(InputUsage.Value).First()];
+                                valueMarginAbsolute = resultItem.MarginsAbsolute[_queryModelClone.GetUsageInputOperationModel(InputUsage.Value).First()];
                             }
                             else if (_queryModelClone.GetUsageInputOperationModel(InputUsage.DefaultValue).Any() && resultItem.Values.ContainsKey(_queryModelClone.GetUsageInputOperationModel(InputUsage.DefaultValue).First()))
                             {
                                 unNormalizedvalue = (double?)resultItem.Values[_queryModelClone.GetUsageInputOperationModel(InputUsage.DefaultValue).First()].Value;
                                 value = (double?)resultItem.Values[_queryModelClone.GetUsageInputOperationModel(InputUsage.DefaultValue).First()].NoramlizedValue;
+                                valueMargin = resultItem.Margins[_queryModelClone.GetUsageInputOperationModel(InputUsage.DefaultValue).First()];
+                                valueMarginAbsolute = resultItem.MarginsAbsolute[_queryModelClone.GetUsageInputOperationModel(InputUsage.DefaultValue).First()];
                             }
 
                             if (value != null)
@@ -373,6 +398,8 @@ namespace PanoramicDataWin8.view.vis.render
                                      _xAom.AggregateFunction == AggregateFunction.Min || _xAom.AggregateFunction == AggregateFunction.Max))
                                 {
                                     xFrom = toScreenX((float)Math.Min(0, xValue.Value));
+                                    xMargin = resultItem.Margins[_queryModelClone.GetUsageInputOperationModel(InputUsage.X).First()];
+                                    xMarginAbsolute = resultItem.MarginsAbsolute[_queryModelClone.GetUsageInputOperationModel(InputUsage.X).First()];
                                 }
                                 else
                                 {
@@ -384,6 +411,8 @@ namespace PanoramicDataWin8.view.vis.render
                                      _yAom.AggregateFunction == AggregateFunction.Min || _yAom.AggregateFunction == AggregateFunction.Max))
                                 {
                                     yFrom = toScreenY((float)Math.Min(0, yValue.Value));
+                                    yMargin = resultItem.Margins[_queryModelClone.GetUsageInputOperationModel(InputUsage.Y).First()];
+                                    yMarginAbsolute = resultItem.MarginsAbsolute[_queryModelClone.GetUsageInputOperationModel(InputUsage.Y).First()];
                                 }
                                 else
                                 {
@@ -392,11 +421,23 @@ namespace PanoramicDataWin8.view.vis.render
 
                                 if (_xBinRange is NominalBinRange)
                                 {
-                                    xTo = toScreenX((float)xBins[_xBinRange.GetDisplayIndex(xValue.Value) + 1]);
+                                    xTo = toScreenX((float) xBins[_xBinRange.GetDisplayIndex(xValue.Value) + 1]);
                                 }
                                 else
                                 {
-                                    xTo = toScreenX((float)xBins[_xBinRange.GetDisplayIndex(_xBinRange.AddStep(xValue.Value))]);
+                                    if (_isXAxisAggregated)
+                                    {
+                                        xTo = toScreenX((float) xValue.Value);
+                                        if (!_isYAxisAggregated)
+                                        {
+                                            xFromMargin = toScreenX((float) (xValue.Value - xMarginAbsolute));
+                                            xToMargin = toScreenX((float) (xValue.Value + xMarginAbsolute));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        xTo = toScreenX((float) xBins[_xBinRange.GetDisplayIndex(_xBinRange.AddStep(xValue.Value))]);
+                                    }
                                 }
 
                                 if (_yBinRange is NominalBinRange)
@@ -405,7 +446,19 @@ namespace PanoramicDataWin8.view.vis.render
                                 }
                                 else
                                 {
-                                    yTo = toScreenY((float)yBins[_yBinRange.GetDisplayIndex(_yBinRange.AddStep(yValue.Value))]);
+                                    if (_isYAxisAggregated)
+                                    {
+                                        yTo = toScreenY((float) yValue.Value);
+                                        if (!_isXAxisAggregated)
+                                        {
+                                            yFromMargin = toScreenY((float) (yValue.Value - yMarginAbsolute));
+                                            yToMargin = toScreenY((float) (yValue.Value + yMarginAbsolute));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        yTo = toScreenY((float)yBins[_yBinRange.GetDisplayIndex(_yBinRange.AddStep(yValue.Value))]);
+                                    }
                                 }
 
 
@@ -433,7 +486,7 @@ namespace PanoramicDataWin8.view.vis.render
                                     canvasArgs.DrawingSession.Transform = mat;
                                     canvasArgs.DrawingSession.DrawCachedGeometry(_fillRoundedRectGeom, dataColor);
                                     canvasArgs.DrawingSession.Transform = currentMat;
-                                    
+
                                     // draw brush rect
                                     if (resultItem.BrushCount > 0 && resultItem.Count > 0 && MainViewController.Instance.MainModel.BrushQueryModel != _queryModel)
                                     {
@@ -445,15 +498,20 @@ namespace PanoramicDataWin8.view.vis.render
                                         var brushRect = new Rect(rect.X + (rect.Width - newWidth)/2.0f, rect.Y + (rect.Height - newHeight)/2.0f, newWidth, newHeight);
                                         canvasArgs.DrawingSession.FillRoundedRectangle(brushRect, 4, 4, brushColor);
                                     }
+                                    if (valueMargin.Value != 0.0)
+                                    {
+                                        DrawString(canvasArgs, _textFormat,
+                                            (float) (rect.Left + rect.Width/2.0f),
+                                            (float) (rect.Top + rect.Height/2.0f), '\u00B1' + valueMargin.Value.ToString("F2") + "%", _textColor, false, true, true);
+                                    }
                                 }
                                 else
                                 {
                                     // draw data rect
                                     canvasArgs.DrawingSession.FillRoundedRectangle(rect, 4, 4, Windows.UI.Color.FromArgb(255, 40, 170, 213));
-                                    if (MainViewController.Instance.MainModel.BrushQueryModel == _queryModelClone)
-                                    {
-                                        
-                                    }
+                                    //DrawString(canvasArgs, _textFormat, (float) rect.X + _leftOffset, (float)rect.Y + _topOffset, yMargin.Value.ToString("F2"), _textColor, true, true, false);
+
+
                                     // draw brush rect
                                     if (resultItem.BrushCount > 0 && resultItem.Count > 0 && MainViewController.Instance.MainModel.BrushQueryModel != _queryModel)
                                     {
@@ -480,11 +538,23 @@ namespace PanoramicDataWin8.view.vis.render
                                         }
                                     }
 
+                                    if (_isYAxisAggregated && !_isXAxisAggregated)
+                                    {
+                                        canvasArgs.DrawingSession.DrawLine(
+                                            new Vector2((float)(rect.X + rect.Width / 2.0f), (float) yFromMargin),
+                                            new Vector2((float)(rect.X + rect.Width / 2.0f), (float)yToMargin), dark, 4);
+                                    }
+                                    if (_isXAxisAggregated && !_isYAxisAggregated)
+                                    {
+                                        canvasArgs.DrawingSession.DrawLine(
+                                            new Vector2((float)xFromMargin, (float)(rect.Y + rect.Height / 2.0f)),
+                                            new Vector2((float)xToMargin, (float)(rect.Y + rect.Height / 2.0f)), dark, 4);
+                                    }
                                 }
 
                                 if (_isXAxisAggregated || _isYAxisAggregated)
                                 {
-                                    canvasArgs.DrawingSession.DrawRoundedRectangle(rect, 4, 4, white, 0.5f);
+                                    //canvasArgs.DrawingSession.DrawRoundedRectangle(rect, 4, 4, white, 0.5f);
 
                                     IGeometry hitGeom = new Rct(xFrom, yTo, xTo, yFrom).GetPolygon();
                                     var filterModel = new FilterModel();

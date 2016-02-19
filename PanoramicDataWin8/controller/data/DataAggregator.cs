@@ -18,6 +18,8 @@ namespace PanoramicDataWin8.controller.data
             }
 
             double maxCount = double.MinValue;
+            double sumCount = 0;
+            double z95 = 1.96;
             binStructure.AggregatedMaxValues.Clear();
             binStructure.AggregatedMinValues.Clear();
 
@@ -57,6 +59,7 @@ namespace PanoramicDataWin8.controller.data
                     }
                 }
             }
+
             // interpolate if needed
             foreach (var bin in binStructure.Bins.Values)
             {
@@ -72,7 +75,8 @@ namespace PanoramicDataWin8.controller.data
                     }
                 }
             }
-            
+
+
             // update max / min 
             foreach (var aggregator in aggregates)
             {
@@ -90,6 +94,79 @@ namespace PanoramicDataWin8.controller.data
                     {
                         binStructure.AggregatedMaxValues[aggregator] = Math.Max(binStructure.AggregatedMaxValues[aggregator], bin.Values[aggregator].Value);
                         binStructure.AggregatedMinValues[aggregator] = Math.Min(binStructure.AggregatedMinValues[aggregator], bin.Values[aggregator].Value);
+                    }
+                }
+            }
+
+            // update margins (errors)
+            sumCount = binStructure.Bins.Values.Sum(b => b.Count);
+            
+            foreach (var aggregator in aggregates)
+            {
+                if (aggregator.AggregateFunction == AggregateFunction.Count)
+                {
+                    foreach (var bin in binStructure.Bins.Values)
+                    {
+                        var totalCountInterpolated = ((double)bin.Count / progress);
+                        double fpc = Math.Sqrt((totalCountInterpolated - bin.Count)/(totalCountInterpolated - 1));
+                        if (!bin.Margins.ContainsKey(aggregator))
+                        {
+                            bin.Margins.Add(aggregator, 0);
+                        }
+                        var probability = ((double) bin.Count) / sumCount;
+                        var margin = ((probability*(1.0 - probability))/ sumCount) * fpc;
+                        margin = Math.Sqrt(margin) * z95;
+                        bin.MarginsAbsolute[aggregator] = margin * totalCountInterpolated;
+                        bin.Margins[aggregator] = margin;
+                    }
+                }
+                else if (aggregator.AggregateFunction == AggregateFunction.Avg)
+                {
+                    foreach (var bin in binStructure.Bins.Values)
+                    {
+                        if (!bin.Means.ContainsKey(aggregator))
+                        {
+                            bin.Means.Add(aggregator, 0);
+                        }
+                        if (!bin.PowerSumAverage.ContainsKey(aggregator))
+                        {
+                            bin.PowerSumAverage.Add(aggregator, 0);
+                        }
+                        if (!bin.SampleStandardDeviations.ContainsKey(aggregator))
+                        {
+                            bin.SampleStandardDeviations.Add(aggregator, 0);
+                        }
+                        if (!bin.Ns.ContainsKey(aggregator))
+                        {
+                            bin.Ns.Add(aggregator, 0);
+                        }
+                        foreach (var dataRow in bin.Samples)
+                        {
+                            double x = 0;
+                            if (double.TryParse(dataRow.Entries[aggregator.InputModel as InputFieldModel].ToString(), out x))
+                            {
+                                double n = bin.Ns[aggregator] + 1;
+                                bin.Ns[aggregator] = n;
+                                bin.Means[aggregator] = bin.Means[aggregator] + (x - bin.Means[aggregator])/n;
+                                bin.PowerSumAverage[aggregator] = bin.PowerSumAverage[aggregator] + (x*x - bin.PowerSumAverage[aggregator])/n;
+                                
+                                if (bin.Ns[aggregator] - 1 > 0)
+                                {
+                                    double mean = bin.Means[aggregator];
+                                    bin.SampleStandardDeviations[aggregator] = Math.Sqrt((bin.PowerSumAverage[aggregator]*n - n*mean*mean)/(n - 1));
+                                }
+                            }
+                        }
+                        if (!bin.Margins.ContainsKey(aggregator))
+                        {
+                            bin.Margins.Add(aggregator, 0);
+                        }
+
+                        var totalCountInterpolated = ((double)bin.Count / progress);
+                        double fpc = Math.Sqrt((totalCountInterpolated - bin.Count) / (totalCountInterpolated - 1));
+
+                        bin.Margins[aggregator] = ((bin.SampleStandardDeviations[aggregator] / Math.Sqrt((double)bin.Count)) * fpc)*z95;
+                        bin.MarginsAbsolute[aggregator] = ((bin.SampleStandardDeviations[aggregator] / Math.Sqrt((double)bin.Count)) * fpc) * z95;
                     }
                 }
             }

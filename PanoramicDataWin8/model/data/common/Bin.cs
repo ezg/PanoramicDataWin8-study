@@ -9,6 +9,13 @@ namespace PanoramicDataWin8.model.data.common
     {
         public Dictionary<InputOperationModel, double> Counts { get; set; }
         public Dictionary<InputOperationModel, double?> Values { get; set; }
+        public Dictionary<InputOperationModel, double> Margins { get; set; }
+        public Dictionary<InputOperationModel, double> MarginsAbsolute { get; set; }
+
+        public Dictionary<InputOperationModel, double> Means { get; set; }
+        public Dictionary<InputOperationModel, double> PowerSumAverage { get; set; }
+        public Dictionary<InputOperationModel, double> SampleStandardDeviations { get; set; }
+        public Dictionary<InputOperationModel, double> Ns { get; set; }
         public Dictionary<InputOperationModel, object> TemporaryValues { get; set; }
         public Dictionary<InputOperationModel, double?> NormalizedValues { get; set; }
         public List<DataRow> Samples { get; set; }
@@ -16,13 +23,19 @@ namespace PanoramicDataWin8.model.data.common
         public List<Span> Spans { get; set; }
         public int Count { get; set; }
         public int BrushCount { get; set; }
-
+        
         public Bin()
         {
             Spans = new List<Span>();
             Samples = new List<DataRow>();
             Counts = new Dictionary<InputOperationModel, double>();
             Values = new Dictionary<InputOperationModel, double?>();
+            Margins = new Dictionary<InputOperationModel, double>();
+            MarginsAbsolute = new Dictionary<InputOperationModel, double>();
+            PowerSumAverage = new Dictionary<InputOperationModel, double>();
+            Means = new Dictionary<InputOperationModel, double>();
+            SampleStandardDeviations = new Dictionary<InputOperationModel, double>();
+            Ns = new Dictionary<InputOperationModel, double>();
             TemporaryValues = new Dictionary<InputOperationModel, object>();
             NormalizedValues = new Dictionary<InputOperationModel, double?>();
         }
@@ -55,6 +68,12 @@ namespace PanoramicDataWin8.model.data.common
 
             Counts = bin.Counts;
             Values = bin.Values;
+            Margins = bin.Margins;
+            MarginsAbsolute = bin.MarginsAbsolute;
+            PowerSumAverage = bin.PowerSumAverage;
+            Means = bin.Means;
+            SampleStandardDeviations = bin.SampleStandardDeviations;
+            Ns = bin.Ns;
             TemporaryValues = bin.TemporaryValues;
             NormalizedValues = bin.NormalizedValues;
         }

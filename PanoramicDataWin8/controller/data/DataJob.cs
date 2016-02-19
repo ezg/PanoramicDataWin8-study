@@ -299,7 +299,15 @@ namespace PanoramicDataWin8.controller.data
                     itemModel.AddValue(aom, new ResultItemValueModel(
                                bin.Values[aom],
                                bin.NormalizedValues[aom]));
-                }      
+                }
+                foreach (var aom in bin.Margins.Keys)
+                {
+                    itemModel.AddMargin(aom, bin.Margins[aom]);
+                }
+                foreach (var aom in bin.MarginsAbsolute.Keys)
+                {
+                    itemModel.AddMarginAbsolute(aom, bin.MarginsAbsolute[aom]);
+                }
                 returnValues.Add(itemModel);
             }
 

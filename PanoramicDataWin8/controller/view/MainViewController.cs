@@ -126,11 +126,7 @@ namespace PanoramicDataWin8.controller.view
 
         public void LoadData(DatasetConfiguration datasetConfiguration)
         {
-            if (datasetConfiguration.Backend.ToLower() == "mssql")
-            {
-                _mainModel.SchemaModel = null; //new MSSQLSchemaModel(datasetConfiguration);
-            }
-            else if (datasetConfiguration.Backend.ToLower() == "sim")
+            if (datasetConfiguration.Backend.ToLower() == "sim")
             {
                 if (_mainModel.SchemaModel != null)
                 {

@@ -262,14 +262,11 @@ namespace PanoramicDataWin8.model.data
                 {
                     ClearFilterModels();
                 }
-                if (QueryModelUpdated != null)
-                {
-                    QueryModelUpdated(this, new QueryModelUpdatedEventArgs(type));
-                }
+                QueryModelUpdated?.Invoke(this, new QueryModelUpdatedEventArgs(type));
 
-                if (type != QueryModelUpdatedEventType.FilterModels && SchemaModel.QueryExecuter != null)
+                if (type != QueryModelUpdatedEventType.FilterModels)
                 {
-                    SchemaModel.QueryExecuter.FireExecuteQuery(this);
+                    SchemaModel?.QueryExecuter?.FireExecuteQuery(this);
                 }
             }
         }

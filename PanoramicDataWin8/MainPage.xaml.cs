@@ -531,7 +531,7 @@ namespace PanoramicDataWin8
                 }
                 else if(MainViewController.Instance.MainModel.Dataset == Dataset.ds2)
                 {
-                    MainViewController.Instance.LoadData(MainViewController.Instance.MainModel.DatasetConfigurations.First(ds => ds.Name == "flights"));
+                    MainViewController.Instance.LoadData(MainViewController.Instance.MainModel.DatasetConfigurations.First(ds => ds.Name == "wine"));
                 }
                 else if (MainViewController.Instance.MainModel.Dataset == Dataset.ds3)
                 {
