@@ -112,12 +112,16 @@ namespace PanoramicDataWin8.controller.data
                         if (!bin.Margins.ContainsKey(aggregator))
                         {
                             bin.Margins.Add(aggregator, 0);
+                            bin.MarginsAbsolute.Add(aggregator, 0);
                         }
                         var probability = ((double) bin.Count) / sumCount;
                         var margin = ((probability*(1.0 - probability))/ sumCount) * fpc;
                         margin = Math.Sqrt(margin) * z95;
-                        bin.MarginsAbsolute[aggregator] = margin * totalCountInterpolated;
-                        bin.Margins[aggregator] = margin;
+                        if (!double.IsNaN(margin) && !double.IsNaN(totalCountInterpolated))
+                        {
+                            bin.MarginsAbsolute[aggregator] = margin*totalCountInterpolated;
+                            bin.Margins[aggregator] = margin;
+                        }
                     }
                 }
                 else if (aggregator.AggregateFunction == AggregateFunction.Avg)
@@ -160,6 +164,7 @@ namespace PanoramicDataWin8.controller.data
                         if (!bin.Margins.ContainsKey(aggregator))
                         {
                             bin.Margins.Add(aggregator, 0);
+                            bin.MarginsAbsolute.Add(aggregator, 0);
                         }
 
                         var totalCountInterpolated = ((double)bin.Count / progress);

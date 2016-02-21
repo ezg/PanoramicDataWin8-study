@@ -98,10 +98,12 @@
                             </StackPanel>
                             <TextBlock x:Name="tbNull" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,0,0,0"
                                    FontSize="11"
+                                       Opacity="0"
                                    Foreground="{StaticResource darkBrush}"
                                    Text="25.9%"/>
                             <TextBlock x:Name="tbSelection" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,0,0,0"
                                    FontSize="11"
+                                       Opacity="0"
                                    Foreground="{StaticResource darkBrush}"
                                    Text=""/>
                         </StackPanel>

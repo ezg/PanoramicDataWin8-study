@@ -498,11 +498,11 @@ namespace PanoramicDataWin8.view.vis.render
                                         var brushRect = new Rect(rect.X + (rect.Width - newWidth)/2.0f, rect.Y + (rect.Height - newHeight)/2.0f, newWidth, newHeight);
                                         canvasArgs.DrawingSession.FillRoundedRectangle(brushRect, 4, 4, brushColor);
                                     }
-                                    if (valueMargin.Value != 0.0)
+                                    if (valueMargin.HasValue && valueMargin.Value != 0.0 && _resultModel.Progress < 1.0)
                                     {
                                         DrawString(canvasArgs, _textFormat,
                                             (float) (rect.Left + rect.Width/2.0f),
-                                            (float) (rect.Top + rect.Height/2.0f), '\u00B1' + valueMargin.Value.ToString("F2") + "%", _textColor, false, true, true);
+                                            (float) (rect.Top + rect.Height/2.0f), '\u00B1' + (valueMargin.Value * 100).ToString("F2") + "%", new Color() {A = 80, R = _textColor.R, G = _textColor.G, B = _textColor.B } , false, true, true);
                                     }
                                 }
                                 else
@@ -542,13 +542,13 @@ namespace PanoramicDataWin8.view.vis.render
                                     {
                                         canvasArgs.DrawingSession.DrawLine(
                                             new Vector2((float)(rect.X + rect.Width / 2.0f), (float) yFromMargin),
-                                            new Vector2((float)(rect.X + rect.Width / 2.0f), (float)yToMargin), dark, 4);
+                                            new Vector2((float)(rect.X + rect.Width / 2.0f), (float)yToMargin), dark, 3);
                                     }
                                     if (_isXAxisAggregated && !_isYAxisAggregated)
                                     {
                                         canvasArgs.DrawingSession.DrawLine(
                                             new Vector2((float)xFromMargin, (float)(rect.Y + rect.Height / 2.0f)),
-                                            new Vector2((float)xToMargin, (float)(rect.Y + rect.Height / 2.0f)), dark, 4);
+                                            new Vector2((float)xToMargin, (float)(rect.Y + rect.Height / 2.0f)), dark, 3);
                                     }
                                 }
 
