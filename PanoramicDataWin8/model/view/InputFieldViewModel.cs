@@ -474,11 +474,11 @@ namespace PanoramicDataWin8.model.view
         {
             if (InputOperationModel.AggregateFunction == AggregateFunction.Avg)
             {
-                name = "Avg(" + name + ")";
+                name = "avg(" + name + ")";
             }
             else if (InputOperationModel.AggregateFunction == AggregateFunction.Count)
             {
-                name = "Count(" + name + ")";
+                name = "count";
             }
             else if (InputOperationModel.AggregateFunction == AggregateFunction.Max)
             {

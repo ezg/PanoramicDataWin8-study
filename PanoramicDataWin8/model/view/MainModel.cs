@@ -241,7 +241,7 @@ namespace PanoramicDataWin8.model.view
             }
         }
 
-        private double _delayInMs = 6000;
+        private double _delayInMs = 12000;
         public double DelayInMs
         {
             get

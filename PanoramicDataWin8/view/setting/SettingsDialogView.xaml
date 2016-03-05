@@ -29,7 +29,7 @@
             Header="seed" Minimum="1" Maximum="12" ></Slider>
 
         <TextBlock Text="delay (ms)" Margin="0,10,0,0"/>
-        <TextBox Name="textBoxDelay" Text="6000"></TextBox>
+        <TextBox Name="textBoxDelay" Text="12000"></TextBox>
 
         <TextBlock Text="participant" Margin="0,10,0,0"/>
         <TextBox Name="textBoxParticipant" Text="PT"></TextBox>
