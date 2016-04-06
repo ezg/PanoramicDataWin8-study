@@ -134,7 +134,7 @@ namespace PanoramicDataWin8.view.vis
                 return;
             }
             
-            if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
+            //if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
 
                 VisualizationViewModel model = (DataContext as VisualizationViewModel);

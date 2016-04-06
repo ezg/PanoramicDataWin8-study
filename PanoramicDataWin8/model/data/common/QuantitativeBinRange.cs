@@ -103,6 +103,7 @@ namespace PanoramicDataWin8.model.data.common
         {
             return (int)Math.Floor(Math.Round((value - this.MinValue) / this.Step, 8));
         }
+
         public override double AddStep(double value)
         {
             return value + Step;
